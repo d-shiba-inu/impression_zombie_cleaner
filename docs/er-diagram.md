@@ -1,3 +1,4 @@
+```mermaid
 erDiagram
     categories ||--o{ posts : "contains"
     posts ||--o{ replies : "has"
@@ -37,3 +38,4 @@ erDiagram
         int reply_id FK
         string created_labels
     }
+```

@@ -1,3 +1,5 @@
+
+```mermaid
 graph TD
     %% ノードの定義（ID[表示名]）
     Top["一覧ページ<br/>(トップページ / URL入力)"]
@@ -23,3 +25,5 @@ graph TD
     style Top fill:#f9f,stroke:#333,stroke-width:2px
     style Mypage fill:#e1f7d5,stroke:#333
     style Detail fill:#cce2ff,stroke:#333
+    
+```
