@@ -1,25 +1,9 @@
 # README
 Hi
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+## 🏗️ 設計 (Design)
 
-Things you may want to cover:
+プロジェクトの全体像については、以下のドキュメントを参照してください。
 
-* Ruby version
-
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+- [📊 ER図（データベース設計）](./docs/er-diagram.md)
+- [📱 画面遷移図](./docs/screen-flow.md)
