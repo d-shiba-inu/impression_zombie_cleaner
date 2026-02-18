@@ -22,8 +22,12 @@ graph TD
     Detail --- Report
 
     %% スタイルの適用（色付け）
-    style Top fill:#f9f,stroke:#333,stroke-width:2px
-    style Mypage fill:#e1f7d5,stroke:#333
-    style Detail fill:#cce2ff,stroke:#333
-    
+    style Top fill: #f9f,stroke:#333,stroke-width:2px
+    style Login fill: #9b0ed2,stroke:#333
+    style Signup fill: #9b0ed2,stroke:#333
+    style Mypage fill: #9b0ed2,stroke:#333
+    style Detail fill: #9b0ed2,stroke:#333
+    style About fill: #9b0ed2,stroke:#333
+    style History fill: #279d9fff,stroke:#333
+    style Report fill: #279d9fff,stroke:#333
 ```
