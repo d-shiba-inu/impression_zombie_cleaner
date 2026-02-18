@@ -22,7 +22,7 @@ export const TopPage = () => {
       });
 
       const data = await response.json(); // Railsからの返事（JSON）を解析
-      setResult(data.message); // Railsから届いたメッセージを表示！
+      setResult(data); // Railsから届いたオブジェクトを保存！
       
     } catch (error) {
       console.error('通信エラー:', error);
@@ -47,7 +47,19 @@ export const TopPage = () => {
           {loading ? '解析中...' : '解析開始！'}
         </button>
       </div>
-      {result && <div style={{ marginTop: '20px', padding: '15px', background: '#f0f0f0', borderRadius: '8px' }}>{result}</div>}
+      {result && result.data && (
+        <div style={{ marginTop: '20px', padding: '20px', backgroundColor: '#fff', borderRadius: '10px', border: '2px solid #333' }}>
+          <h2 style={{ color: result.data.is_zombie ? 'red' : 'green' }}>
+            {result.data.is_zombie ? '🧟‍♂️ ゾンビ判定！' : '👤 人間判定！'}
+          </h2>
+          <p><strong>ID:</strong> @{result.data.screen_name}</p>
+          <p><strong>自己紹介:</strong> {result.data.description || '（未設定）'}</p>
+          <p><strong>FF比:</strong> {result.data.followers_count} / {result.data.following_count}</p>
+          <div style={{ fontSize: '24px', fontWeight: 'bold' }}>
+            スコア: {result.data.score}点
+          </div>
+        </div>
+      )}
     </div>
   );
 };
