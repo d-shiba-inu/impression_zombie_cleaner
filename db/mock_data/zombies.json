@@ -1,0 +1,102 @@
+[
+  {
+    "id": 1,
+    "label": "zombie",
+    "screen_name": "crypto_tarou_99",
+    "description": "最短で月100万！不労所得の秘密を公開中。DM解放してます。#副業 #FX #仮想通貨",
+    "followers_count": 8500,
+    "following_count": 8450,
+    "created_at": "2026-01-15T10:00:00Z",
+    "tweet_text": "この投資ツールすごすぎ！(短縮URL)"
+  },
+  {
+    "id": 2,
+    "label": "human",
+    "screen_name": "rails_lover_cat",
+    "description": "Webエンジニア目指してRails勉強中。最近はReactも。愛猫の名前はルナ。🐈",
+    "followers_count": 450,
+    "following_count": 460,
+    "created_at": "2021-05-10T20:00:00Z",
+    "tweet_text": "bundle installでエラー出て泣いてる。 #Rails"
+  },
+  {
+    "id": 3,
+    "label": "zombie",
+    "screen_name": "ai_rich_woman",
+    "description": "AIを使って自動で稼ぐ。自由なライフスタイル。最新トレンド発信。",
+    "followers_count": 12000,
+    "following_count": 11900,
+    "created_at": "2025-12-01T15:00:00Z",
+    "tweet_text": "【必見】最新のAI収益化ツールを紹介します。"
+  },
+  {
+    "id": 4,
+    "label": "human",
+    "screen_name": "shinjuku_lunch",
+    "description": "新宿周辺の美味しいランチ情報を発信しています。自腹100%の正直レビュー。",
+    "followers_count": 3200,
+    "following_count": 1200,
+    "created_at": "2018-03-20T12:00:00Z",
+    "tweet_text": "今日食べたカレー、スパイス効いてて最高だった！"
+  },
+  {
+    "id": 5,
+    "label": "zombie",
+    "screen_name": "user83749210",
+    "description": "",
+    "followers_count": 12,
+    "following_count": 1500,
+    "created_at": "2026-02-10T09:00:00Z",
+    "tweet_text": "RT @zombie_king: 無料配布中！"
+  },
+  {
+    "id": 6,
+    "label": "gray_zone",
+    "screen_name": "bot_test_acc",
+    "description": "自分用のメモ代わり。自動投稿のテスト。API練習。",
+    "followers_count": 50,
+    "following_count": 2,
+    "created_at": "2025-11-20T10:00:00Z",
+    "tweet_text": "現在の時刻は 12:00 です。"
+  },
+  {
+    "id": 7,
+    "label": "zombie",
+    "screen_name": "follow_back_100",
+    "description": "相互フォロー100%！フォロバ絶対！フォローしてくれたら全員返します！",
+    "followers_count": 25000,
+    "following_count": 24950,
+    "created_at": "2024-08-01T00:00:00Z",
+    "tweet_text": "フォロワーさん増やしたい人、集まれー！"
+  },
+  {
+    "id": 8,
+    "label": "human",
+    "screen_name": "photo_traveler",
+    "description": "週末はカメラ片手に旅に出ます。日本の絶景を世界に。α7RIVユーザー。",
+    "followers_count": 5600,
+    "following_count": 300,
+    "created_at": "2015-11-03T18:00:00Z",
+    "tweet_text": "京都の朝焼け。言葉を失う美しさでした。"
+  },
+  {
+    "id": 9,
+    "label": "zombie",
+    "screen_name": "cash_giveaway_top",
+    "description": "【公式】総額1億円プレゼント企画実施中。フォロー&RTで当選確定。詳細はプロフのリンクへ。",
+    "followers_count": 89000,
+    "following_count": 0,
+    "created_at": "2026-02-14T00:00:00Z",
+    "tweet_text": "まだ間に合います！100万円欲しい人はRT！"
+  },
+  {
+    "id": 10,
+    "label": "human",
+    "screen_name": "no_bio_man",
+    "description": "",
+    "followers_count": 80,
+    "following_count": 120,
+    "created_at": "2019-10-10T10:00:00Z",
+    "tweet_text": "ラーメン食べたい。"
+  }
+]
