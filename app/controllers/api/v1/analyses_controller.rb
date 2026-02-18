@@ -1,6 +1,9 @@
 class Api::V1::AnalysesController < ApplicationController
+  skip_before_action :verify_authenticity_token
   def create
     url = params[:url]
+
+    puts "Received URL: #{url} 🧟‍♂️"
     
     # ここで本来はゾンビチェックをしますが、まずは「受け取ったよ」と返事をするだけ
     render json: { 
