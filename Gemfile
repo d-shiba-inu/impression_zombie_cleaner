@@ -67,3 +67,5 @@ group :test do
 end
 
 gem "foreman", "~> 0.90.0"
+
+gem "rack-cors", "~> 3.0"
