@@ -4,11 +4,12 @@ class Api::V1::AnalysesController < ApplicationController
   def create
     # 1. JSONファイルを読み込む
     file_path = Rails.root.join('db', 'mock_data', 'zombies.json')
-    json_data = File.read(file_path)
-    zombies = JSON.parse(json_data)
-
-    # 2. 10個のサンプルデータからランダムに1つ選ぶ（擬似的な解析）
+    zombies = JSON.parse(File.read(file_path))
     mock_result = zombies.sample
+
+    # 🌟 ここで判定エンジンを動かす！
+    detector = ZombieDetector.new(mock_result)
+    zombie_score = detector.score
 
     # 3. 選ばれたデータをReactに返す
     render json: {
@@ -17,8 +18,8 @@ class Api::V1::AnalysesController < ApplicationController
       data: {
         screen_name: mock_result['screen_name'],
         description: mock_result['description'],
-        is_zombie: mock_result['label'] == 'zombie', # zombieならtrue
-        score: mock_result['label'] == 'zombie' ? 90 : 10, # とりあえず仮のスコア
+        is_zombie: zombie_score >= 50, # 50点以上ならゾンビ
+        score: zombie_score,
         followers_count: mock_result['followers_count'],
         following_count: mock_result['following_count']
       }
