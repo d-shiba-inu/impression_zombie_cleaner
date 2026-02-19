@@ -1,3 +1,8 @@
+PATH
+  remote: /Users/daikikamata/projects/zombie_detector
+  specs:
+    zombie_detector (0.1.0)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -304,6 +309,7 @@ DEPENDENCIES
   turbo-rails
   tzinfo-data
   web-console
+  zombie_detector!
 
 RUBY VERSION
    ruby 3.2.0p0
