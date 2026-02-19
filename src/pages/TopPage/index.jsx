@@ -17,7 +17,8 @@ export const TopPage = () => {
       const data = await response.json();
       
       // 2. 新しい結果を履歴の先頭に追加
-      setHistory([data.data, ...history]);
+      const newHistory = [data.data, ...history].slice(0, 10);
+      setHistory(newHistory);
       setUrl(''); // 入力欄を空にする
     } catch (error) {
       alert('通信失敗だワン... 😢');
