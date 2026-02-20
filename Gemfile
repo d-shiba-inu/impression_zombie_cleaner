@@ -74,3 +74,5 @@ gem "rack-cors", "~> 3.0"
 gem 'zombie_detector', path: '/Users/daikikamata/projects/zombie_detector'
 
 gem 'dotenv-rails', groups: [:development, :test]
+
+gem 'faraday'
