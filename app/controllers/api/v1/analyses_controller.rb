@@ -1,28 +1,39 @@
+# app/controllers/api/v1/analyses_controller.rb
 class Api::V1::AnalysesController < ApplicationController
   skip_before_action :verify_authenticity_token
 
   def create
-    # 1. JSONファイルを読み込む
-    file_path = Rails.root.join('db', 'mock_data', 'zombies.json')
-    zombies = JSON.parse(File.read(file_path))
-    mock_result = zombies.sample
+    # 1. ユーザー入力を受け取る（React の input に入れた値が params[:url] で届きます）
+    username = params[:url]
 
-    # 🌟 ここで判定エンジンを動かす！
-    # GemでZombieDetectorを定義
-    zombie_score = ZombieDetector.score(mock_result)
-    is_zombie = ZombieDetector.zombie?(mock_result)
+    # 2. 通訳さん（Service）を呼んでデータを取ってくる
+    client = XApi::Client.new
+    user_data = client.fetch_user_data(username)
 
-    # 3. 選ばれたデータをReactに返す
+    # 🛡️ 安全装置：データが取れなかった（nilだった）場合の処理
+    if user_data.nil?
+      render json: { 
+        status: 'error', 
+        message: 'ユーザーが見つからなかったワン... IDが間違っていないか確認してほしいワン！🐶' 
+      }, status: :not_found
+      return # 👈 ここで処理を中断して、下の解析に進ませない！
+    end
+
+    # 3. 自作Gemにデータを渡して判定する
+    zombie_score = ZombieDetector.score(user_data)
+    is_zombie = ZombieDetector.zombie?(user_data)
+
+    # 4. React に結果を返す
     render json: {
       status: 'success',
-      message: "Railsが解析を完了したワン！🐾",
+      message: "Railsが本物のXからデータを取ってきたワン！🐾",
       data: {
-        screen_name: mock_result['screen_name'],
-        description: mock_result['description'],
-        is_zombie: zombie_score >= 50, # 50点以上ならゾンビ
+        screen_name: user_data['screen_name'],
+        description: user_data['description'],
+        is_zombie: is_zombie,
         score: zombie_score,
-        followers_count: mock_result['followers_count'],
-        following_count: mock_result['following_count']
+        followers_count: user_data['followers_count'],
+        following_count: user_data['following_count']
       }
     }
   end
