@@ -8,8 +8,9 @@ class Api::V1::AnalysesController < ApplicationController
     mock_result = zombies.sample
 
     # 🌟 ここで判定エンジンを動かす！
-    detector = ZombieDetector.new(mock_result) # modelsでZombieDetectorを定義
-    zombie_score = detector.score
+    # GemでZombieDetectorを定義
+    zombie_score = ZombieDetector.score(mock_result)
+    is_zombie = ZombieDetector.zombie?(mock_result)
 
     # 3. 選ばれたデータをReactに返す
     render json: {
