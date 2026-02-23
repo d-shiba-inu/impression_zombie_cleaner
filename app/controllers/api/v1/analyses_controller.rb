@@ -88,4 +88,15 @@ class Api::V1::AnalysesController < ApplicationController
       }, status: :internal_server_error
     end
   end
+
+  # 履歴取得用のアクション
+  def history
+    # 🌟 最新の 50 件を、新しい順（desc）に取得
+    @analyses = Analysis.order(created_at: :desc).limit(50)
+    
+    render json: {
+      status: 'success',
+      data: @analyses
+    }
+  end
 end
