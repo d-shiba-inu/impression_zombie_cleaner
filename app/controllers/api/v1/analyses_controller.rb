@@ -26,56 +26,94 @@ class Api::V1::AnalysesController < ApplicationController
     client = XApi::Client.new
     raw_replies = client.fetch_replies(tweet_id)
 
-    if raw_replies.empty?
-      render json: { status: 'success', message: 'リプライが見つからなかったワン！', data: [] }
-      return
-    end
+    return render json: { status: 'success', data: [] } if raw_replies.empty?
 
-    # 3. 自作 Gem で一括解析（類似度計算 & ゾンビ判定）
-    # D-2 で実装した UI が期待する形式で返却します
+    # 3. 自作 Gem で判定
     @results = ZombieDetector.detect_duplicates(raw_replies)
+
+    # 🌟 4. 【追加】判定結果を DB に一括保存（バルク・インサート）
+    # map を使って保存用のデータ配列をスリムに作成します
+    save_data = @results.map do |res|
+      {
+        url: tweet_url,
+        name: res['name'],
+        screen_name: res['screen_name'],
+        text: res['text'],
+        similarity_rate: res['similarity_rate'],
+        score: (res['similarity_rate'] * 100).to_i,
+        is_zombie: res['is_zombie_copy'], # Gemのキー名に合わせる
+        verified: res['verified'],
+        description: res['description'],
+        created_at: Time.current,
+        updated_at: Time.current
+      }
+    end
+    
+    # 🌟 Rails 6以降の爆速保存メソッド
+    Analysis.insert_all(save_data) if save_data.any?
 
     render json: {
       status: 'success',
-      message: "#{raw_replies.size}件のリプライを本番解析したワン！🐾",
+      message: "#{raw_replies.size}件を解析・保存したワン！🐾",
       data: @results
     }
   end
 
   # 特定のユーザー1人を検証するアクション
   def create
-    # 1. ユーザー入力を受け取る（React の input に入れた値が params[:url] で届きます）
     username = params[:url]
-
-    # 2. 通訳さん（Service）を呼んでデータを取ってくる
     client = XApi::Client.new
     user_data = client.fetch_user_data(username)
 
-    # 🛡️ 安全装置：データが取れなかった（nilだった）場合の処理
     if user_data.nil?
       render json: { 
         status: 'error', 
-        message: 'ユーザーが見つからなかったワン... IDが間違っていないか確認してほしいワン！🐶' 
+        message: 'ユーザーが見つからなかったワン...🐶' 
       }, status: :not_found
-      return # 👈 ここで処理を中断して、下の解析に進ませない！
+      return
     end
 
-    # 3. 自作Gemにデータを渡して判定する
+    # 1. 自作Gemで判定（既存ロジック）
     zombie_score = ZombieDetector.score(user_data)
     is_zombie = ZombieDetector.zombie?(user_data)
 
-    # 4. React に結果を返す
+    # 2. 🌟 檻（DB）に保存する
+    # analysis_params を通さず、ここで明示的にマッピングします
+    @analysis = Analysis.new(
+      url: "https://x.com/#{user_data['screen_name']}", # 単体スキャンなのでプロフィールURL
+      name: user_data['name'] || "Unknown",
+      screen_name: user_data['screen_name'],
+      text: "", # プロフィールスキャンなので本文は空
+      score: zombie_score,
+      is_zombie: is_zombie,
+      verified: !!user_data['verified'],
+      description: user_data['description']
+    )
+
+    # 3. 保存に成功したら React に返す
+    if @analysis.save
+      render json: {
+        status: 'success',
+        message: "DBへの保存に成功したワン！🐾",
+        data: @analysis # 保存されたデータ（ID付き）を返す
+      }
+    else
+      render json: {
+        status: 'error',
+        message: 'DB保存に失敗しちゃったワン...😢',
+        errors: @analysis.errors.full_messages
+      }, status: :internal_server_error
+    end
+  end
+
+  # 履歴取得用のアクション
+  def history
+    # 🌟 最新の 50 件を、新しい順（desc）に取得
+    @analyses = Analysis.order(created_at: :desc).limit(50)
+    
     render json: {
       status: 'success',
-      message: "Railsが本物のXからデータを取ってきたワン！🐾",
-      data: {
-        screen_name: user_data['screen_name'],
-        description: user_data['description'],
-        is_zombie: is_zombie,
-        score: zombie_score,
-        followers_count: user_data['followers_count'],
-        following_count: user_data['following_count']
-      }
+      data: @analyses
     }
   end
 end

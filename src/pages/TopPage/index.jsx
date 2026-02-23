@@ -1,28 +1,50 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react'; // 🌟 useEffect を追加
 
 export const TopPage = () => {
   const [url, setUrl] = useState('');
-  const [history, setHistory] = useState([]); // 1. 履歴を保存する配列
+  const [history, setHistory] = useState([]); 
   const [loading, setLoading] = useState(false);
 
   // 一括解析データ用
-  const [replies, setReplies] = useState([]); // 300件の全データ
-  const [displayCount, setDisplayCount] = useState(25); // 25, 50, 100
+  const [replies, setReplies] = useState([]); 
+  const [displayCount, setDisplayCount] = useState(25); 
+
+  // 🌟 【追加】ページ読み込み時に実行される魔法
+  useEffect(() => {
+    fetchHistory();
+  }, []);
+
+  // 🌟 【追加】RailsのDBから履歴を取得する関数
+  const fetchHistory = async () => {
+    try {
+      const response = await fetch('http://localhost:3000/api/v1/analyses/history');
+      const result = await response.json();
+      if (result.status === 'success') {
+        setHistory(result.data); // DBのデータをセット
+      }
+    } catch (error) {
+      console.error("履歴のロードに失敗だワン... 😢", error);
+    }
+  };
 
   // 1. 【一括判定ボタン】の実装
   const fetchBulkAnalysis = async () => {
-   // 🌟 ガード節：URLがないと本番APIは叩けないワン！
     if (!url) return alert("解析したいポストのURLを入力してほしいワン！🐶");
     
     setLoading(true);
     try {
-      // 🌟 Railsの index アクションに URL を渡す
-      // encodeURIComponent を使うことで、URLの中の「/」や「?」が壊れないようにします
       const response = await fetch(`http://localhost:3000/api/v1/analyses?url=${encodeURIComponent(url)}`);
       const result = await response.json();
       
       if (result.status === 'success') {
-        setReplies(result.data); // 取得した最大100件を保存
+        // ① メインの結果エリアを更新
+        setReplies(result.data); 
+        
+        // ② 🌟 履歴の更新
+        // Rails側で一括保存が終わっているので、fetchHistoryを呼ぶだけで
+        // 最新の100件が履歴に反映されます！
+        fetchHistory();
+
       } else {
         alert(result.message);
       }
@@ -33,9 +55,7 @@ export const TopPage = () => {
     }
   };
 
-  // 2. 表示用に切り出し
-  const visibleReplies = replies.slice(0, displayCount);
-
+  // 2. 単体スキャン
   const handleAnalyze = async () => {
     if (!url) return alert("URLを入力してほしいワン！🐶");
     setLoading(true);
@@ -47,16 +67,19 @@ export const TopPage = () => {
       });
       const data = await response.json();
       
-      // 2. 新しい結果を履歴の先頭に追加
-      const newHistory = [data.data, ...history].slice(0, 10);
-      setHistory(newHistory);
-      setUrl(''); // 入力欄を空にする
+      if (data.status === 'success') {
+        // 🌟 DB保存済みの新しい結果を履歴の先頭に追加
+        setHistory(prev => [data.data, ...prev].slice(0, 50));
+        setUrl(''); 
+      }
     } catch (error) {
       alert('通信失敗だワン... 😢');
     } finally {
       setLoading(false);
     }
   };
+
+  const visibleReplies = replies.slice(0, displayCount);
 
   return (
     <div style={{ backgroundColor: '#1a1a1a', color: '#fff', minHeight: '100vh', padding: '40px', fontFamily: 'monospace' }}>
@@ -192,12 +215,20 @@ export const TopPage = () => {
                 {/* 危険な時の「警告」バッジ */}
                 {isDanger && <div style={{ position: 'absolute', top: '5px', right: '5px', fontSize: '0.7em', color: '#ff0000', fontWeight: 'bold' }}>⚠️ DANGER</div>}
 
-                <div style={{ fontWeight: 'bold', color: themeColor }}>
-                  {item.is_zombie ? '🧟‍♂️ ZOMBIE DETECTED' : '👤 HUMAN VERIFIED'}
-                </div>
-                
-                <div style={{ fontSize: '0.9em', margin: '5px 0' }}>@{item.screen_name}</div>
-                
+                   {/* 🌟 判定メッセージではなく、実際の名前を表示するように修正 */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div style={{ fontWeight: 'bold', color: '#fff', fontSize: '1em' }}>
+                        {item.name || "Unknown"} {/* 👈 ここを item.name に！ */}
+                      </div>
+                      {/* 🌟 判定結果は小さなラベルとして表示 */}
+                      <div style={{ fontSize: '0.7em', color: themeColor, fontWeight: 'bold', border: `1px solid ${themeColor}`, padding: '2px 6px', borderRadius: '4px' }}>
+                        {item.is_zombie ? 'ZOMBIE' : 'HUMAN'}
+                      </div>
+                    </div>
+
+                    <div style={{ fontSize: '0.85em', color: '#888', margin: '2px 0 10px' }}>
+                      @{item.screen_name}
+                    </div>
                 {/* 🌟 ゲージ（プログレスバー）を追加 */}
                 <div style={{ width: '100%', height: '8px', background: '#444', borderRadius: '4px', margin: '10px 0' }}>
                   <div style={{ 
