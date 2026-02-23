@@ -11,13 +11,23 @@ export const TopPage = () => {
 
   // 1. 【一括判定ボタン】の実装
   const fetchBulkAnalysis = async () => {
+   // 🌟 ガード節：URLがないと本番APIは叩けないワン！
+    if (!url) return alert("解析したいポストのURLを入力してほしいワン！🐶");
+    
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:3000/api/v1/analyses');
+      // 🌟 Railsの index アクションに URL を渡す
+      // encodeURIComponent を使うことで、URLの中の「/」や「?」が壊れないようにします
+      const response = await fetch(`http://localhost:3000/api/v1/analyses?url=${encodeURIComponent(url)}`);
       const result = await response.json();
-      setReplies(result.data); // 全件を冷蔵庫（State）に保存
+      
+      if (result.status === 'success') {
+        setReplies(result.data); // 取得した最大100件を保存
+      } else {
+        alert(result.message);
+      }
     } catch (error) {
-      alert('一括スキャンに失敗したワン... 😢');
+      alert('本番スキャンに失敗したワン... 😢');
     } finally {
       setLoading(false);
     }
@@ -74,7 +84,7 @@ export const TopPage = () => {
           onClick={fetchBulkAnalysis}
           style={{ marginTop: '10px', padding: '8px 16px', background: 'transparent', color: '#00ff00', border: '1px solid #00ff00', cursor: 'pointer', borderRadius: '4px' }}
         >
-          RUN BULK ANALYSIS (300 REPLIES)
+          RUN BULK ANALYSIS (MAX 100 REPLIES)
         </button>
       </div>
 
@@ -102,32 +112,54 @@ export const TopPage = () => {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '15px', marginTop: '20px' }}>
             {visibleReplies.map((reply, index) => {
               const isZombie = reply.is_zombie_copy;
-              // 🌟 GLSLの代わりにCSSアニメーションで「微かなハイライト」
               const cardStyle = {
                 padding: '12px',
-                background: isZombie ? 'rgba(255, 0, 0, 0.1)' : '#222',
+                background: isZombie ? 'rgba(255, 0, 0, 0.15)' : '#222', // ゾンビは少し赤を強めに
                 border: isZombie ? '1px solid #ff0000' : '1px solid #444',
                 borderRadius: '4px',
                 transition: 'all 0.3s ease',
-                // ゾンビの時だけ微かに点滅（GLSL風の演出）
                 animation: isZombie ? 'pulse 2s infinite' : 'none'
               };
 
               return (
                 <div key={index} style={cardStyle}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8em' }}>
+                  {/* 🌟 投稿者情報エリアを追加 */}
+                  <div style={{ marginBottom: '10px', borderBottom: '1px solid #333', paddingBottom: '5px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                      <span style={{ fontWeight: 'bold', fontSize: '0.9em', color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {reply.name || "Unknown"}
+                      </span>
+                      {reply.verified && <span style={{ color: '#1DA1F2', fontSize: '0.8em' }}>☑️</span>}
+                    </div>
+                    <div style={{ fontSize: '0.75em', color: '#888' }}>
+                      @{reply.screen_name || "id_unknown"}
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8em', marginBottom: '8px' }}>
                     <span style={{ color: reply.verified ? '#1DA1F2' : '#666' }}>
-                      {reply.verified ? '☑ Verified' : 'Unverified'}
+                      STATUS: {reply.verified ? 'VERIFIED' : 'UNVERIFIED'}
                     </span>
                     <span style={{ color: isZombie ? '#ff0000' : '#00ff00', fontWeight: 'bold' }}>
-                      {/* 🌟 精密スコア表示 */}
                       SIM: {(reply.similarity_rate * 100).toFixed(1)}%
                     </span>
                   </div>
-                  <p style={{ fontSize: '0.9em', margin: '10px 0', color: isZombie ? '#ffcccc' : '#eee' }}>
+
+                  <p style={{ fontSize: '0.85em', margin: '10px 0', color: isZombie ? '#ffcccc' : '#eee', lineHeight: '1.4' }}>
                     {reply.text}
                   </p>
-                  {isZombie && <div style={{ fontSize: '0.7em', color: '#ff0000', textAlign: 'right' }}>⚠️ COPY-PASTE DETECTED</div>}
+
+                  {isZombie && (
+                    <div style={{ 
+                      fontSize: '0.7em', 
+                      color: '#ff0000', 
+                      textAlign: 'right', 
+                      fontWeight: 'bold',
+                      textShadow: '0 0 5px #ff0000' 
+                    }}>
+                      ⚠️ COPY-PASTE DETECTED
+                    </div>
+                  )}
                 </div>
               );
             })}
