@@ -71,6 +71,8 @@ module XApi
           'verified' => user['verified'] || false,
           'description' => user['description'] || "",
           'created_at' => tweet['created_at']
+          'name' => user['name'],        # ユーザーの表示名（例：スシロー）
+          'screen_name' => user['username'] # ユーザーID（例：akindosushiroco）
         }
       end
     end
