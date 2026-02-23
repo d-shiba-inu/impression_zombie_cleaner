@@ -11,13 +11,23 @@ export const TopPage = () => {
 
   // 1. 【一括判定ボタン】の実装
   const fetchBulkAnalysis = async () => {
+   // 🌟 ガード節：URLがないと本番APIは叩けないワン！
+    if (!url) return alert("解析したいポストのURLを入力してほしいワン！🐶");
+    
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:3000/api/v1/analyses');
+      // 🌟 Railsの index アクションに URL を渡す
+      // encodeURIComponent を使うことで、URLの中の「/」や「?」が壊れないようにします
+      const response = await fetch(`http://localhost:3000/api/v1/analyses?url=${encodeURIComponent(url)}`);
       const result = await response.json();
-      setReplies(result.data); // 全件を冷蔵庫（State）に保存
+      
+      if (result.status === 'success') {
+        setReplies(result.data); // 取得した最大100件を保存
+      } else {
+        alert(result.message);
+      }
     } catch (error) {
-      alert('一括スキャンに失敗したワン... 😢');
+      alert('本番スキャンに失敗したワン... 😢');
     } finally {
       setLoading(false);
     }
@@ -74,7 +84,7 @@ export const TopPage = () => {
           onClick={fetchBulkAnalysis}
           style={{ marginTop: '10px', padding: '8px 16px', background: 'transparent', color: '#00ff00', border: '1px solid #00ff00', cursor: 'pointer', borderRadius: '4px' }}
         >
-          RUN BULK ANALYSIS (300 REPLIES)
+          RUN BULK ANALYSIS (MAX 100 REPLIES)
         </button>
       </div>
 
