@@ -5,6 +5,27 @@ export const TopPage = () => {
   const [history, setHistory] = useState([]); // 1. 履歴を保存する配列
   const [loading, setLoading] = useState(false);
 
+  // 一括解析データ用
+  const [replies, setReplies] = useState([]); // 300件の全データ
+  const [displayCount, setDisplayCount] = useState(25); // 25, 50, 100
+
+  // 1. 【一括判定ボタン】の実装
+  const fetchBulkAnalysis = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('http://localhost:3000/api/v1/analyses');
+      const result = await response.json();
+      setReplies(result.data); // 全件を冷蔵庫（State）に保存
+    } catch (error) {
+      alert('一括スキャンに失敗したワン... 😢');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 2. 表示用に切り出し
+  const visibleReplies = replies.slice(0, displayCount);
+
   const handleAnalyze = async () => {
     if (!url) return alert("URLを入力してほしいワン！🐶");
     setLoading(true);
@@ -47,7 +68,72 @@ export const TopPage = () => {
         >
           {loading ? 'SCANNING...' : 'SCAN URL'}
         </button>
+
+        {/* 🌟 一括解析ボタン（モックデータ用） */}
+        <button 
+          onClick={fetchBulkAnalysis}
+          style={{ marginTop: '10px', padding: '8px 16px', background: 'transparent', color: '#00ff00', border: '1px solid #00ff00', cursor: 'pointer', borderRadius: '4px' }}
+        >
+          RUN BULK ANALYSIS (300 REPLIES)
+        </button>
       </div>
+
+      {/* 🌟 4.5-D-2: 一括解析結果表示エリア */}
+      {replies.length > 0 && (
+        <div style={{ maxWidth: '900px', margin: '40px auto' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #00ff00', paddingBottom: '10px' }}>
+            <h2 style={{ margin: 0 }}>🛡️ DEFENSE LINE (REPLIES)</h2>
+            
+            {/* 件数切り替えセレクトボックス */}
+            <div style={{ color: '#00ff00' }}>
+              SHOW: 
+              <select 
+                value={displayCount} 
+                onChange={(e) => setDisplayCount(Number(e.target.value))}
+                style={{ background: '#000', color: '#00ff00', border: '1px solid #00ff00', marginLeft: '10px' }}
+              >
+                <option value={25}>25 items</option>
+                <option value={50}>50 items</option>
+                <option value={100}>100 items</option>
+              </select>
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '15px', marginTop: '20px' }}>
+            {visibleReplies.map((reply, index) => {
+              const isZombie = reply.is_zombie_copy;
+              // 🌟 GLSLの代わりにCSSアニメーションで「微かなハイライト」
+              const cardStyle = {
+                padding: '12px',
+                background: isZombie ? 'rgba(255, 0, 0, 0.1)' : '#222',
+                border: isZombie ? '1px solid #ff0000' : '1px solid #444',
+                borderRadius: '4px',
+                transition: 'all 0.3s ease',
+                // ゾンビの時だけ微かに点滅（GLSL風の演出）
+                animation: isZombie ? 'pulse 2s infinite' : 'none'
+              };
+
+              return (
+                <div key={index} style={cardStyle}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8em' }}>
+                    <span style={{ color: reply.verified ? '#1DA1F2' : '#666' }}>
+                      {reply.verified ? '☑ Verified' : 'Unverified'}
+                    </span>
+                    <span style={{ color: isZombie ? '#ff0000' : '#00ff00', fontWeight: 'bold' }}>
+                      {/* 🌟 精密スコア表示 */}
+                      SIM: {(reply.similarity_rate * 100).toFixed(1)}%
+                    </span>
+                  </div>
+                  <p style={{ fontSize: '0.9em', margin: '10px 0', color: isZombie ? '#ffcccc' : '#eee' }}>
+                    {reply.text}
+                  </p>
+                  {isZombie && <div style={{ fontSize: '0.7em', color: '#ff0000', textAlign: 'right' }}>⚠️ COPY-PASTE DETECTED</div>}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* 3. 履歴表示エリア */}
       <div style={{ maxWidth: '800px', margin: '0 auto' }}>
@@ -104,3 +190,13 @@ export const TopPage = () => {
     </div>
   );
 };
+
+const styleTag = document.createElement("style");
+styleTag.innerHTML = `
+  @keyframes pulse {
+    0% { box-shadow: 0 0 5px rgba(255,0,0,0.2); }
+    50% { box-shadow: 0 0 15px rgba(255,0,0,0.4); }
+    100% { box-shadow: 0 0 5px rgba(255,0,0,0.2); }
+  }
+`;
+document.head.appendChild(styleTag);
