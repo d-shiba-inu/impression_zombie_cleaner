@@ -37,17 +37,14 @@ export const TopPage = () => {
       const result = await response.json();
       
       if (result.status === 'success') {
+        // ① メインの結果エリアを更新
         setReplies(result.data); 
         
-        // 履歴へのマッピング（表示用）
-        const newItems = result.data.map(item => ({
-          ...item,
-          is_zombie: item.is_zombie_copy, 
-          score: Math.round(item.similarity_rate * 100)
-        }));
+        // ② 🌟 履歴の更新
+        // Rails側で一括保存が終わっているので、fetchHistoryを呼ぶだけで
+        // 最新の100件が履歴に反映されます！
+        fetchHistory();
 
-        setHistory(prevHistory => [...newItems, ...prevHistory].slice(0, 50));
-        
       } else {
         alert(result.message);
       }
