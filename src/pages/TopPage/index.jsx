@@ -23,6 +23,17 @@ export const TopPage = () => {
       
       if (result.status === 'success') {
         setReplies(result.data); // 取得した最大100件を保存
+        // 2. 🌟 履歴（History）にも保存！
+        // 一括解析の結果（配列）を既存の履歴の先頭に合体させます
+        // slice(0, 20) などで履歴が長くなりすぎないようダイエットします
+        const newItems = result.data.map(item => ({
+          ...item,
+          is_zombie: item.is_zombie_copy, // キー名を履歴用と合わせる
+          score: Math.round(item.similarity_rate * 100) // 0-100の整数に変換
+        }));
+
+        setHistory(prevHistory => [...newItems, ...prevHistory].slice(0, 50));
+        
       } else {
         alert(result.message);
       }
