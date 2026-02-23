@@ -6,8 +6,9 @@ module XApi
     SEARCH_URL = "https://api.twitter.com/2/tweets/search/recent"
 
     def fetch_user_data(username)
-      # 🌟 @が入っていたら取り除く（安全対策）
-      clean_username = username.gsub('@', '')
+      # 🌟 URLからIDだけを抜き出す（安全策）
+      # https://x.com/akindosushiroco -> akindosushiroco に変換
+      clean_username = username.split('/').last.gsub('@', '')
 
       conn = Faraday.new(url: "#{BASE_URL}#{clean_username}") do |f|
         f.request :url_encoded
@@ -16,23 +17,34 @@ module XApi
 
       response = conn.get do |req|
         req.headers['Authorization'] = "Bearer #{ENV.fetch('X_BEARER_TOKEN')}"
-        req.params['user.fields'] = 'public_metrics,description,created_at'
+        # 🌟 ここでしっかり verified と name を要求する！
+        req.params['user.fields'] = 'public_metrics,description,created_at,verified,name'
       end
 
-      # 通信失敗、またはデータがない場合は即座に nil を返す
-      body = JSON.parse(response.body)
+      # 🌟 安全ガード：空レスポンスやパースエラーを防ぐ
+      return nil if response.body.blank?
+      
+      begin
+        body = JSON.parse(response.body)
+      rescue JSON::ParserError
+        return nil
+      end
+
       return nil if !response.success? || body['data'].nil?
 
       data = body['data']
       metrics = data['public_metrics'] || {}
 
+      # 🌟 戻り値のハッシュを DB のカラム名に合わせる
       {
+        'name'            => data['name'],
         'screen_name'     => data['username'],
         'followers_count' => metrics['followers_count'] || 0,
         'following_count' => metrics['following_count'] || 0,
         'statuses_count'  => metrics['tweet_count'] || 0,
         'description'     => data['description'] || "",
         'created_at'      => data['created_at'] || Time.now.to_s,
+        'verified'        => data['verified'] || false, # 🌟 これでチェックマークが取れる！
         'default_profile' => false
       }
     end
