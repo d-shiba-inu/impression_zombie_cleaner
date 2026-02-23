@@ -26,18 +26,35 @@ class Api::V1::AnalysesController < ApplicationController
     client = XApi::Client.new
     raw_replies = client.fetch_replies(tweet_id)
 
-    if raw_replies.empty?
-      render json: { status: 'success', message: 'リプライが見つからなかったワン！', data: [] }
-      return
-    end
+    return render json: { status: 'success', data: [] } if raw_replies.empty?
 
-    # 3. 自作 Gem で一括解析（類似度計算 & ゾンビ判定）
-    # D-2 で実装した UI が期待する形式で返却します
+    # 3. 自作 Gem で判定
     @results = ZombieDetector.detect_duplicates(raw_replies)
+
+    # 🌟 4. 【追加】判定結果を DB に一括保存（バルク・インサート）
+    # map を使って保存用のデータ配列をスリムに作成します
+    save_data = @results.map do |res|
+      {
+        url: tweet_url,
+        name: res['name'],
+        screen_name: res['screen_name'],
+        text: res['text'],
+        similarity_rate: res['similarity_rate'],
+        score: (res['similarity_rate'] * 100).to_i,
+        is_zombie: res['is_zombie_copy'], # Gemのキー名に合わせる
+        verified: res['verified'],
+        description: res['description'],
+        created_at: Time.current,
+        updated_at: Time.current
+      }
+    end
+    
+    # 🌟 Rails 6以降の爆速保存メソッド
+    Analysis.insert_all(save_data) if save_data.any?
 
     render json: {
       status: 'success',
-      message: "#{raw_replies.size}件のリプライを本番解析したワン！🐾",
+      message: "#{raw_replies.size}件を解析・保存したワン！🐾",
       data: @results
     }
   end
