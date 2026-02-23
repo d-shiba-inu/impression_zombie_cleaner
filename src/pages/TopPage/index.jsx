@@ -215,12 +215,20 @@ export const TopPage = () => {
                 {/* 危険な時の「警告」バッジ */}
                 {isDanger && <div style={{ position: 'absolute', top: '5px', right: '5px', fontSize: '0.7em', color: '#ff0000', fontWeight: 'bold' }}>⚠️ DANGER</div>}
 
-                <div style={{ fontWeight: 'bold', color: themeColor }}>
-                  {item.is_zombie ? '🧟‍♂️ ZOMBIE DETECTED' : '👤 HUMAN VERIFIED'}
-                </div>
-                
-                <div style={{ fontSize: '0.9em', margin: '5px 0' }}>@{item.screen_name}</div>
-                
+                   {/* 🌟 判定メッセージではなく、実際の名前を表示するように修正 */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div style={{ fontWeight: 'bold', color: '#fff', fontSize: '1em' }}>
+                        {item.name || "Unknown"} {/* 👈 ここを item.name に！ */}
+                      </div>
+                      {/* 🌟 判定結果は小さなラベルとして表示 */}
+                      <div style={{ fontSize: '0.7em', color: themeColor, fontWeight: 'bold', border: `1px solid ${themeColor}`, padding: '2px 6px', borderRadius: '4px' }}>
+                        {item.is_zombie ? 'ZOMBIE' : 'HUMAN'}
+                      </div>
+                    </div>
+
+                    <div style={{ fontSize: '0.85em', color: '#888', margin: '2px 0 10px' }}>
+                      @{item.screen_name}
+                    </div>
                 {/* 🌟 ゲージ（プログレスバー）を追加 */}
                 <div style={{ width: '100%', height: '8px', background: '#444', borderRadius: '4px', margin: '10px 0' }}>
                   <div style={{ 
