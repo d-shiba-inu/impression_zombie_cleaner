@@ -63,7 +63,7 @@ module XApi
         req.params['query'] = "conversation_id:#{tweet_id} -is:retweet"
         req.params['max_results'] = 100 # まずは100件（無料/廉価枠の限界値）
         req.params['tweet.fields'] = 'author_id,created_at,text'
-        req.params['user.fields'] = 'verified,description,name,username'
+        req.params['user.fields'] = 'verified,verified_type,description,name,username,public_metrics'
         req.params['expansions'] = 'author_id' # 投稿主の情報も一緒に連れてくる
       end
 
@@ -78,13 +78,33 @@ module XApi
       
       body['data'].map do |tweet|
         user = users[tweet['author_id']] || {}
+
+        # 1. シンプルに API が返してくる verified (true/false) を尊重する
+        is_verified = user['verified'] == true
+
+        # 2. 種類を判定（verified が false なら強制的に none）
+        # React 側で色を変えやすいように種類を特定       
+        v_type = user['verified_type']
+        badge_type = if is_verified
+                       case v_type
+                       when 'business' then 'gold'
+                       when 'government' then 'government'
+                       else 'blue'
+                       end
+                     else
+                       'none'
+                     end
+
         {
           'text' => tweet['text'],
-          'verified' => !!user['verified'],
+          'verified' => is_verified,
+          'badge_type' => badge_type,
           'description' => user['description'] || "",
           'created_at' => tweet['created_at'],
           'name' => user['name'] || "Unknown",        # ユーザーの表示名（例：スシロー）
-          'screen_name' => user['username'] || "unknown_id" # ユーザーID（例：akindosushiroco）
+          'screen_name' => user['username'] || "unknown_id", # ユーザーID（例：akindosushiroco）
+          'followers_count' => user.dig('public_metrics', 'followers_count') || 0,
+          'following_count' => user.dig('public_metrics', 'following_count') || 0
         }
       end
     end
