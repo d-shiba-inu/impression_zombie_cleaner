@@ -42,7 +42,7 @@ class Api::V1::AnalysesController < ApplicationController
         screen_name: res['screen_name'],
         text: res['text'],
         similarity_rate: res['similarity_rate'],
-        score: (res['similarity_rate'] * 100).to_i,
+        score: res['score'],
         is_zombie: res['is_zombie_copy'], # Gemのキー名に合わせる
         verified: res['verified'],
         description: res['description'],
