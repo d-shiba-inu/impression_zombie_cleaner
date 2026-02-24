@@ -63,7 +63,7 @@ module XApi
         req.params['query'] = "conversation_id:#{tweet_id} -is:retweet"
         req.params['max_results'] = 100 # まずは100件（無料/廉価枠の限界値）
         req.params['tweet.fields'] = 'author_id,created_at,text'
-        req.params['user.fields'] = 'verified,description,name,username,public_metrics'
+        req.params['user.fields'] = 'verified,verified_type,description,name,username,public_metrics'
         req.params['expansions'] = 'author_id' # 投稿主の情報も一緒に連れてくる
       end
 
@@ -78,9 +78,12 @@ module XApi
       
       body['data'].map do |tweet|
         user = users[tweet['author_id']] || {}
+        # 🌟 verified が nil の場合でも、verified_type があれば true とみなす
+        is_verified = user['verified'] == true || !user['verified_type'].nil?
+
         {
           'text' => tweet['text'],
-          'verified' => user['verified'] || false,
+          'verified' => is_verified,
           'description' => user['description'] || "",
           'created_at' => tweet['created_at'],
           'name' => user['name'] || "Unknown",        # ユーザーの表示名（例：スシロー）
