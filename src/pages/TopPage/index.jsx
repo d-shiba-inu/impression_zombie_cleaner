@@ -213,7 +213,6 @@ export const TopPage = () => {
       )}
 
       {/* 3. 履歴表示エリア */}
-      {/* 3. 履歴表示エリア */}
       <div style={{ maxWidth: '900px', margin: '60px auto 0' }}>
         <h2 style={{ borderBottom: '2px solid #00ff00', paddingBottom: '10px', color: '#00ff00' }}>📊 SCAN HISTORY (ARCHIVES)</h2>
         {history.length === 0 && <p style={{ color: '#666', textAlign: 'center' }}>まだスキャン履歴はありません。</p>}
@@ -224,8 +223,9 @@ export const TopPage = () => {
             // 🌟 履歴側でも共通のバッジ判定ロジックを適用
             const badge = getBadgeStyle(item.badge_type, item.verified);
             
-            // 🌟 履歴側も similarity_rate を元にゾンビ色（赤）を判定するように統一
-            const isZombie = item.is_zombie || (item.similarity_rate && item.similarity_rate > 0.5);
+            // 🌟 履歴側もゾンビ色（赤）を判定するように統一
+            // 🌟 SIMの数値で判断せず、DBに保存された「判定結果」をそのまま使う
+            const isZombie = item.is_zombie;
 
             // 🌟 カード全体のスタイル（一括解析結果の cardStyle と同期）
             const historyCardStyle = {
