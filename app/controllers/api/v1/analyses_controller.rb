@@ -45,6 +45,7 @@ class Api::V1::AnalysesController < ApplicationController
         score: res['score'],
         is_zombie: res['is_zombie_copy'], # Gemのキー名に合わせる
         verified: res['verified'],
+        badge_type: res['badge_type'],
         description: res['description'],
         created_at: Time.current,
         updated_at: Time.current
@@ -89,6 +90,7 @@ class Api::V1::AnalysesController < ApplicationController
       score: zombie_score,
       is_zombie: is_zombie,
       verified: !!user_data['verified'],
+      badge_type: user_data['badge_type'],
       description: user_data['description']
     )
 

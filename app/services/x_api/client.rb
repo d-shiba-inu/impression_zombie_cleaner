@@ -78,12 +78,27 @@ module XApi
       
       body['data'].map do |tweet|
         user = users[tweet['author_id']] || {}
-        # 🌟 verified が nil の場合でも、verified_type があれば true とみなす
-        is_verified = user['verified'] == true || !user['verified_type'].nil?
+
+        # 1. シンプルに API が返してくる verified (true/false) を尊重する
+        is_verified = user['verified'] == true
+
+        # 2. 種類を判定（verified が false なら強制的に none）
+        # React 側で色を変えやすいように種類を特定       
+        v_type = user['verified_type']
+        badge_type = if is_verified
+                       case v_type
+                       when 'business' then 'gold'
+                       when 'government' then 'government'
+                       else 'blue'
+                       end
+                     else
+                       'none'
+                     end
 
         {
           'text' => tweet['text'],
           'verified' => is_verified,
+          'badge_type' => badge_type,
           'description' => user['description'] || "",
           'created_at' => tweet['created_at'],
           'name' => user['name'] || "Unknown",        # ユーザーの表示名（例：スシロー）
