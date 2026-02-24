@@ -80,9 +80,9 @@ Enhancement of Features
 ---
  Feb. 2026  
 - [x] ⭐️ 判定の強化(MainのSTEP4)  
-　 - Gemのロジック拡張  
-　 - Railsの調整  
-　 - Reactの表示確認  
+   - Gemのロジック拡張  
+   - Railsの調整  
+   - Reactの表示確認  
 
 - [ ] ⭐️ 履歴の整理(MainのSTEP5)  
 - [ ] ⭐️ UI/UXの整備  
