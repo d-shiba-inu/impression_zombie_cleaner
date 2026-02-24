@@ -1,5 +1,21 @@
 import React, { useState, useEffect } from 'react'; // 🌟 useEffect を追加
 
+// 🌟 バッジの種類に応じて色とラベルを返す関数
+const getBadgeStyle = (badgeType, verified) => {
+  if (!verified) return { color: '#666', label: 'UNVERIFIED', icon: null };
+  
+  switch (badgeType) {
+    case 'gold':
+      return { color: '#FFD700', label: 'CORPORATE', icon: '☑️' }; // 金バッジ
+    case 'government':
+      return { color: '#808080', label: 'GOVERNMENT', icon: '☑️' }; // グレーバッジ
+    case 'blue':
+      return { color: '#1DA1F2', label: 'VERIFIED', icon: '☑️' }; // 青バッジ
+    default:
+      return { color: '#1DA1F2', label: 'VERIFIED', icon: '☑️' }; // 予備（青）
+  }
+};
+
 export const TopPage = () => {
   const [url, setUrl] = useState('');
   const [history, setHistory] = useState([]); 
@@ -111,7 +127,7 @@ export const TopPage = () => {
         </button>
       </div>
 
-      {/* 🌟 4.5-D-2: 一括解析結果表示エリア */}
+      {/* 🌟 D-2: 一括解析結果表示エリア */}
       {replies.length > 0 && (
         <div style={{ maxWidth: '900px', margin: '40px auto' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #00ff00', paddingBottom: '10px' }}>
@@ -135,9 +151,13 @@ export const TopPage = () => {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '15px', marginTop: '20px' }}>
             {visibleReplies.map((reply, index) => {
               const isZombie = reply.is_zombie_copy;
+              
+              // 🌟 バッジ判定ロジックを適用
+              const badge = getBadgeStyle(reply.badge_type, reply.verified);
+
               const cardStyle = {
                 padding: '12px',
-                background: isZombie ? 'rgba(255, 0, 0, 0.15)' : '#222', // ゾンビは少し赤を強めに
+                background: isZombie ? 'rgba(255, 0, 0, 0.15)' : '#222',
                 border: isZombie ? '1px solid #ff0000' : '1px solid #444',
                 borderRadius: '4px',
                 transition: 'all 0.3s ease',
@@ -146,13 +166,14 @@ export const TopPage = () => {
 
               return (
                 <div key={index} style={cardStyle}>
-                  {/* 🌟 投稿者情報エリアを追加 */}
+                  {/* 投稿者情報エリア */}
                   <div style={{ marginBottom: '10px', borderBottom: '1px solid #333', paddingBottom: '5px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                       <span style={{ fontWeight: 'bold', fontSize: '0.9em', color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                         {reply.name || "Unknown"}
                       </span>
-                      {reply.verified && <span style={{ color: '#1DA1F2', fontSize: '0.8em' }}>☑️</span>}
+                      {/* 🌟 バッジの色とアイコンを動的に表示 */}
+                      {reply.verified && <span style={{ color: badge.color, fontSize: '0.9em' }}>{badge.icon}</span>}
                     </div>
                     <div style={{ fontSize: '0.75em', color: '#888' }}>
                       @{reply.screen_name || "id_unknown"}
@@ -160,8 +181,9 @@ export const TopPage = () => {
                   </div>
 
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8em', marginBottom: '8px' }}>
-                    <span style={{ color: reply.verified ? '#1DA1F2' : '#666' }}>
-                      STATUS: {reply.verified ? 'VERIFIED' : 'UNVERIFIED'}
+                    {/* 🌟 ステータスラベルの色と文字も連動 */}
+                    <span style={{ color: badge.color }}>
+                      STATUS: {badge.label}
                     </span>
                     <span style={{ color: isZombie ? '#ff0000' : '#00ff00', fontWeight: 'bold' }}>
                       SIM: {(reply.similarity_rate * 100).toFixed(1)}%
@@ -191,60 +213,84 @@ export const TopPage = () => {
       )}
 
       {/* 3. 履歴表示エリア */}
-      <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-        <h2 style={{ borderBottom: '2px solid #00ff00', paddingBottom: '10px' }}>📊 SCAN HISTORY</h2>
-        {history.length === 0 && <p style={{ color: '#666' }}>まだスキャン履歴はありません。</p>}
+      {/* 3. 履歴表示エリア */}
+      <div style={{ maxWidth: '900px', margin: '60px auto 0' }}>
+        <h2 style={{ borderBottom: '2px solid #00ff00', paddingBottom: '10px', color: '#00ff00' }}>📊 SCAN HISTORY (ARCHIVES)</h2>
+        {history.length === 0 && <p style={{ color: '#666', textAlign: 'center' }}>まだスキャン履歴はありません。</p>}
         
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '20px', marginTop: '20px' }}>
+        {/* 🌟 一括解析結果（DEFENSE LINE）とデザインを統一したグリッド */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '15px', marginTop: '20px' }}>
           {history.map((item, index) => {
-            // 🌟 スコアに応じて色やメッセージを決める
-            const isDanger = item.score >= 80;
-            const isWarning = item.score >= 50 && item.score < 80;
-            const themeColor = isDanger ? '#ff0000' : (isWarning ? '#ffaa00' : '#00ff00');
+            // 🌟 履歴側でも共通のバッジ判定ロジックを適用
+            const badge = getBadgeStyle(item.badge_type, item.verified);
+            
+            // 🌟 履歴側も similarity_rate を元にゾンビ色（赤）を判定するように統一
+            const isZombie = item.is_zombie || (item.similarity_rate && item.similarity_rate > 0.5);
+
+            // 🌟 カード全体のスタイル（一括解析結果の cardStyle と同期）
+            const historyCardStyle = {
+              padding: '12px',
+              background: isZombie ? 'rgba(255, 0, 0, 0.15)' : '#222',
+              border: isZombie ? '1px solid #ff0000' : '1px solid #444',
+              borderRadius: '4px',
+              transition: 'all 0.3s ease',
+              position: 'relative',
+              animation: isZombie ? 'pulse 2s infinite' : 'none'
+            };
 
             return (
-              <div key={index} style={{ 
-                padding: '15px', 
-                background: '#2a2a2a', 
-                borderRadius: '8px', 
-                borderLeft: `5px solid ${themeColor}`,
-                boxShadow: isDanger ? '0 0 15px rgba(255,0,0,0.4)' : '0 4px 6px rgba(0,0,0,0.3)',
-                position: 'relative',
-                overflow: 'hidden'
-              }}>
-                {/* 危険な時の「警告」バッジ */}
-                {isDanger && <div style={{ position: 'absolute', top: '5px', right: '5px', fontSize: '0.7em', color: '#ff0000', fontWeight: 'bold' }}>⚠️ DANGER</div>}
+              <div key={index} style={historyCardStyle}>
+                {/* 投稿者情報エリア（名前・バッジ・ID） */}
+                <div style={{ marginBottom: '10px', borderBottom: '1px solid #333', paddingBottom: '5px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                    <span style={{ fontWeight: 'bold', fontSize: '0.9em', color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {item.name || "Unknown"}
+                    </span>
+                    {/* バッジ表示 */}
+                    {item.verified && <span style={{ color: badge.color, fontSize: '0.9em' }}>{badge.icon}</span>}
+                  </div>
+                  <div style={{ fontSize: '0.75em', color: '#888' }}>
+                    @{item.screen_name || "id_unknown"}
+                  </div>
+                </div>
 
-                   {/* 🌟 判定メッセージではなく、実際の名前を表示するように修正 */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <div style={{ fontWeight: 'bold', color: '#fff', fontSize: '1em' }}>
-                        {item.name || "Unknown"} {/* 👈 ここを item.name に！ */}
-                      </div>
-                      {/* 🌟 判定結果は小さなラベルとして表示 */}
-                      <div style={{ fontSize: '0.7em', color: themeColor, fontWeight: 'bold', border: `1px solid ${themeColor}`, padding: '2px 6px', borderRadius: '4px' }}>
-                        {item.is_zombie ? 'ZOMBIE' : 'HUMAN'}
-                      </div>
-                    </div>
+                {/* ステータスとスコアの表示（一括解析結果のレイアウトを継承） */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8em', marginBottom: '8px' }}>
+                  <span style={{ color: badge.color }}>
+                    STATUS: {badge.label}
+                  </span>
+                  <span style={{ color: isZombie ? '#ff0000' : '#00ff00', fontWeight: 'bold' }}>
+                    SIM: {((item.similarity_rate || 0) * 100).toFixed(1)}%
+                  </span>
+                </div>
 
-                    <div style={{ fontSize: '0.85em', color: '#888', margin: '2px 0 10px' }}>
-                      @{item.screen_name}
-                    </div>
-                {/* 🌟 ゲージ（プログレスバー）を追加 */}
-                <div style={{ width: '100%', height: '8px', background: '#444', borderRadius: '4px', margin: '10px 0' }}>
+                {/* ユーザー紹介文（2行でクランプして高さを統一） */}
+                <p style={{ 
+                  fontSize: '0.85em', 
+                  margin: '10px 0', 
+                  color: isZombie ? '#ffcccc' : '#eee', 
+                  lineHeight: '1.4', 
+                  height: '40px', 
+                  overflow: 'hidden', 
+                  display: '-webkit-box', 
+                  WebkitLineClamp: 2, 
+                  WebkitBoxOrient: 'vertical' 
+                }}>
+                  {item.description || "No description available."}
+                </p>
+
+                {/* 警告ラベル */}
+                {isZombie && (
                   <div style={{ 
-                    width: `${item.score}%`, 
-                    height: '100%', 
-                    background: themeColor, 
-                    borderRadius: '4px',
-                    transition: 'width 1s ease-in-out'
-                  }} />
-                </div>
-
-                <div style={{ fontSize: '0.8em', color: '#aaa', height: '40px', overflow: 'hidden' }}>{item.description}</div>
-                
-                <div style={{ marginTop: '10px', textAlign: 'right', fontWeight: 'bold', fontSize: '1.2em', color: themeColor }}>
-                  {item.score}<span style={{ fontSize: '0.6em', color: '#666' }}>/100</span>
-                </div>
+                    fontSize: '0.7em', 
+                    color: '#ff0000', 
+                    textAlign: 'right', 
+                    fontWeight: 'bold',
+                    textShadow: '0 0 5px #ff0000' 
+                  }}>
+                    ⚠️ HIGH ZOMBIE DENSITY
+                  </div>
+                )}
               </div>
             );
           })}

@@ -28,6 +28,8 @@ class Api::V1::AnalysesController < ApplicationController
 
     return render json: { status: 'success', data: [] } if raw_replies.empty?
 
+    puts "DEBUG: User Data Sample >>> #{raw_replies.first.inspect}"
+
     # 3. 自作 Gem で判定
     @results = ZombieDetector.detect_duplicates(raw_replies)
 
@@ -40,9 +42,10 @@ class Api::V1::AnalysesController < ApplicationController
         screen_name: res['screen_name'],
         text: res['text'],
         similarity_rate: res['similarity_rate'],
-        score: (res['similarity_rate'] * 100).to_i,
+        score: res['score'],
         is_zombie: res['is_zombie_copy'], # Gemのキー名に合わせる
         verified: res['verified'],
+        badge_type: res['badge_type'],
         description: res['description'],
         created_at: Time.current,
         updated_at: Time.current
@@ -87,6 +90,7 @@ class Api::V1::AnalysesController < ApplicationController
       score: zombie_score,
       is_zombie: is_zombie,
       verified: !!user_data['verified'],
+      badge_type: user_data['badge_type'],
       description: user_data['description']
     )
 
