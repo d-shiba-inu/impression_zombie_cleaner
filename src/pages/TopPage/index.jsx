@@ -25,7 +25,11 @@ export const TopPage = () => {
   const [replies, setReplies] = useState([]); 
   const [displayCount, setDisplayCount] = useState(25); 
 
-  // 🌟 【追加】ページ読み込み時に実行される魔法
+  // 🌟 フィルターと表示切替のステート
+  const [filter, setFilter] = useState('all'); // 'all', 'zombie', 'human'
+  const [showHistory, setShowHistory] = useState(true);
+
+  // 🌟 ページ読み込み時に実行される魔法
   useEffect(() => {
     fetchHistory();
   }, []);
@@ -42,6 +46,14 @@ export const TopPage = () => {
       console.error("履歴のロードに失敗だワン... 😢", error);
     }
   };
+
+  // 🌟 解析ごとにデータをグループ化するロジック（URLをキーにする）
+  const groupedHistory = history.reduce((acc, item) => {
+    const key = item.url || "Unknown Scan";
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(item);
+    return acc;
+  }, {});
 
   // 1. 【一括判定ボタン】の実装
   const fetchBulkAnalysis = async () => {
@@ -213,88 +225,150 @@ export const TopPage = () => {
       )}
 
       {/* 3. 履歴表示エリア */}
+      {/* 3. 履歴表示エリア */}
       <div style={{ maxWidth: '900px', margin: '60px auto 0' }}>
-        <h2 style={{ borderBottom: '2px solid #00ff00', paddingBottom: '10px', color: '#00ff00' }}>📊 SCAN HISTORY (ARCHIVES)</h2>
-        {history.length === 0 && <p style={{ color: '#666', textAlign: 'center' }}>まだスキャン履歴はありません。</p>}
-        
-        {/* 🌟 一括解析結果（DEFENSE LINE）とデザインを統一したグリッド */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '15px', marginTop: '20px' }}>
-          {history.map((item, index) => {
-            // 🌟 履歴側でも共通のバッジ判定ロジックを適用
-            const badge = getBadgeStyle(item.badge_type, item.verified);
-            
-            // 🌟 履歴側もゾンビ色（赤）を判定するように統一
-            // 🌟 SIMの数値で判断せず、DBに保存された「判定結果」をそのまま使う
-            const isZombie = item.is_zombie;
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #00ff00', paddingBottom: '10px' }}>
+          <h2 style={{ margin: 0, color: '#00ff00' }}>📊 SCAN HISTORY (ARCHIVES)</h2>
+          
+          <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
+            {/* 🌟 フィルターセレクトボックス */}
+            <div style={{ fontSize: '0.8em', color: '#00ff00' }}>
+              FILTER: 
+              <select 
+                value={filter} 
+                onChange={(e) => setFilter(e.target.value)}
+                style={{ background: '#000', color: '#00ff00', border: '1px solid #00ff00', marginLeft: '8px', cursor: 'pointer' }}
+              >
+                <option value="all">SHOW ALL</option>
+                <option value="zombie">ZOMBIES ONLY</option>
+                <option value="human">HUMANS ONLY</option>
+              </select>
+            </div>
 
-            // 🌟 カード全体のスタイル（一括解析結果の cardStyle と同期）
-            const historyCardStyle = {
-              padding: '12px',
-              background: isZombie ? 'rgba(255, 0, 0, 0.15)' : '#222',
-              border: isZombie ? '1px solid #ff0000' : '1px solid #444',
-              borderRadius: '4px',
-              transition: 'all 0.3s ease',
-              position: 'relative',
-              animation: isZombie ? 'pulse 2s infinite' : 'none'
-            };
-
-            return (
-              <div key={index} style={historyCardStyle}>
-                {/* 投稿者情報エリア（名前・バッジ・ID） */}
-                <div style={{ marginBottom: '10px', borderBottom: '1px solid #333', paddingBottom: '5px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                    <span style={{ fontWeight: 'bold', fontSize: '0.9em', color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                      {item.name || "Unknown"}
-                    </span>
-                    {/* バッジ表示 */}
-                    {item.verified && <span style={{ color: badge.color, fontSize: '0.9em' }}>{badge.icon}</span>}
-                  </div>
-                  <div style={{ fontSize: '0.75em', color: '#888' }}>
-                    @{item.screen_name || "id_unknown"}
-                  </div>
-                </div>
-
-                {/* ステータスとスコアの表示（一括解析結果のレイアウトを継承） */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8em', marginBottom: '8px' }}>
-                  <span style={{ color: badge.color }}>
-                    STATUS: {badge.label}
-                  </span>
-                  <span style={{ color: isZombie ? '#ff0000' : '#00ff00', fontWeight: 'bold' }}>
-                    SIM: {((item.similarity_rate || 0) * 100).toFixed(1)}%
-                  </span>
-                </div>
-
-                {/* ユーザー紹介文（2行でクランプして高さを統一） */}
-                <p style={{ 
-                  fontSize: '0.85em', 
-                  margin: '10px 0', 
-                  color: isZombie ? '#ffcccc' : '#eee', 
-                  lineHeight: '1.4', 
-                  height: '40px', 
-                  overflow: 'hidden', 
-                  display: '-webkit-box', 
-                  WebkitLineClamp: 2, 
-                  WebkitBoxOrient: 'vertical' 
-                }}>
-                  {item.description || "No description available."}
-                </p>
-
-                {/* 警告ラベル */}
-                {isZombie && (
-                  <div style={{ 
-                    fontSize: '0.7em', 
-                    color: '#ff0000', 
-                    textAlign: 'right', 
-                    fontWeight: 'bold',
-                    textShadow: '0 0 5px #ff0000' 
-                  }}>
-                    ⚠️ HIGH ZOMBIE DENSITY
-                  </div>
-                )}
-              </div>
-            );
-          })}
+            {/* 🌟 表示トグルボタン */}
+            <button 
+              onClick={() => setShowHistory(!showHistory)}
+              style={{ padding: '4px 12px', background: showHistory ? '#444' : '#00ff00', color: showHistory ? '#fff' : '#000', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8em', fontWeight: 'bold' }}
+            >
+              {showHistory ? 'HIDE HISTORY' : 'SHOW HISTORY'}
+            </button>
+          </div>
         </div>
+        
+        {history.length === 0 && <p style={{ color: '#666', textAlign: 'center', marginTop: '20px' }}>まだスキャン履歴はありません。</p>}
+        
+        {/* 🌟 履歴全体の表示スイッチ (showHistory) */}
+        {showHistory && Object.keys(groupedHistory).map((sourceUrl, gIndex) => {
+          // 🌟 フィルターを適用したアイテムを先に作成
+          const filteredItems = groupedHistory[sourceUrl].filter(item => {
+            if (filter === 'zombie') return item.is_zombie;
+            if (filter === 'human') return !item.is_zombie;
+            return true;
+          });
+
+          // このグループに表示すべきものがない場合はスキップ
+          if (filteredItems.length === 0) return null;
+
+          return (
+            <div key={gIndex} style={{ marginBottom: '40px', marginTop: '20px' }}>
+              {/* 🌟 解析ごとの区切り見出し */}
+              <div style={{ 
+                background: 'rgba(0, 255, 0, 0.05)', 
+                padding: '8px 15px', 
+                borderLeft: '4px solid #00ff00', 
+                marginBottom: '15px',
+                fontSize: '0.8em',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}>
+                <span style={{ color: '#aaa', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  SOURCE: <span style={{ color: '#00ff00' }}>{sourceUrl}</span>
+                </span>
+                <span style={{ color: '#666', marginLeft: '10px' }}>{filteredItems.length} items</span>
+              </div>
+
+              {/* 🌟 一括解析結果（DEFENSE LINE）とデザインを統一したグリッド */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '15px' }}>
+                {filteredItems.map((item, index) => {
+                  // 🌟 履歴側でも共通のバッジ判定ロジックを適用
+                  const badge = getBadgeStyle(item.badge_type, item.verified);
+                  
+                  // 🌟 履歴側もゾンビ色（赤）を判定するように統一
+                  // 🌟 SIMの数値で判断せず、DBに保存された「判定結果」をそのまま使う
+                  const isZombie = item.is_zombie;
+
+                  // 🌟 カード全体のスタイル（一括解析結果の cardStyle と同期）
+                  const historyCardStyle = {
+                    padding: '12px',
+                    background: isZombie ? 'rgba(255, 0, 0, 0.15)' : '#222',
+                    border: isZombie ? '1px solid #ff0000' : '1px solid #444',
+                    borderRadius: '4px',
+                    transition: 'all 0.3s ease',
+                    position: 'relative',
+                    animation: isZombie ? 'pulse 2s infinite' : 'none'
+                  };
+
+                  return (
+                    <div key={index} style={historyCardStyle}>
+                      {/* 投稿者情報エリア（名前・バッジ・ID） */}
+                      <div style={{ marginBottom: '10px', borderBottom: '1px solid #333', paddingBottom: '5px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                          <span style={{ fontWeight: 'bold', fontSize: '0.9em', color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            {item.name || "Unknown"}
+                          </span>
+                          {/* バッジ表示 */}
+                          {item.verified && <span style={{ color: badge.color, fontSize: '0.9em' }}>{badge.icon}</span>}
+                        </div>
+                        <div style={{ fontSize: '0.75em', color: '#888' }}>
+                          @{item.screen_name || "id_unknown"}
+                        </div>
+                      </div>
+
+                      {/* ステータスとスコアの表示（一括解析結果のレイアウトを継承） */}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8em', marginBottom: '8px' }}>
+                        <span style={{ color: badge.color }}>
+                          STATUS: {badge.label}
+                        </span>
+                        <span style={{ color: isZombie ? '#ff0000' : '#00ff00', fontWeight: 'bold' }}>
+                          SIM: {((item.similarity_rate || 0) * 100).toFixed(1)}%
+                        </span>
+                      </div>
+
+                      {/* ユーザー紹介文（2行でクランプして高さを統一） */}
+                      <p style={{ 
+                        fontSize: '0.85em', 
+                        margin: '10px 0', 
+                        color: isZombie ? '#ffcccc' : '#eee', 
+                        lineHeight: '1.4', 
+                        height: '40px', 
+                        overflow: 'hidden', 
+                        display: '-webkit-box', 
+                        WebkitLineClamp: 2, 
+                        WebkitBoxOrient: 'vertical' 
+                      }}>
+                        {item.description || "No description available."}
+                      </p>
+
+                      {/* 警告ラベル */}
+                      {isZombie && (
+                        <div style={{ 
+                          fontSize: '0.7em', 
+                          color: '#ff0000', 
+                          textAlign: 'right', 
+                          fontWeight: 'bold',
+                          textShadow: '0 0 5px #ff0000' 
+                        }}>
+                          ⚠️ HIGH ZOMBIE DENSITY
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
