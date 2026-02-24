@@ -28,6 +28,8 @@ class Api::V1::AnalysesController < ApplicationController
 
     return render json: { status: 'success', data: [] } if raw_replies.empty?
 
+    puts "DEBUG: User Data Sample >>> #{raw_replies.first.inspect}"
+
     # 3. 自作 Gem で判定
     @results = ZombieDetector.detect_duplicates(raw_replies)
 
