@@ -104,10 +104,10 @@ module XApi
 
         # 🌟【新機能】言語判定 (CLDを使用)
         # リプライ本文の言語
-        reply_lang = CLD.detect(tweet['text'])[:code]
+        reply_lang = CLD.detect_language(tweet['text'])[:code]
         # プロフィール + 名前の言語
         profile_text = "#{user['name']} #{user['description']}"
-        profile_lang = CLD.detect(profile_text)[:code]
+        profile_lang = CLD.detect_language(profile_text)[:code]
 
         # 🌟 3. 【新機能】投稿密度（Activity Density）用のデータ準備
         metrics = user['public_metrics'] || {}
