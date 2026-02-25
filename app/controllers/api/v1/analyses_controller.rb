@@ -43,11 +43,13 @@ class Api::V1::AnalysesController < ApplicationController
         screen_name: res['screen_name'],
         text: res['text'],
         similarity_rate: res['similarity_rate'],
-        score: res['score'],
         is_zombie: res['is_zombie_copy'], # Gemのキー名に合わせる
         verified: res['verified'],
         badge_type: res['badge_type'],
         description: res['description'],
+        score: res['score'],
+        reply_lang: res['reply_lang'],     
+        profile_lang: res['profile_lang'], 
         created_at: Time.current,
         updated_at: Time.current
       }
