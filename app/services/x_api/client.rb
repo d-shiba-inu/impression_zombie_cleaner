@@ -130,5 +130,17 @@ module XApi
         }
       end.compact # next で飛ばした nil を除去！
     end
+
+    # ツイート詳細を取得するメソッド
+    def fetch_tweet_author_id(tweet_id)
+      url = "https://api.twitter.com/2/tweets/#{tweet_id}"
+      conn = Faraday.new(url: url)
+      response = conn.get do |req|
+        req.headers['Authorization'] = "Bearer #{ENV.fetch('X_BEARER_TOKEN')}"
+        req.params['tweet.fields'] = 'author_id'
+      end
+      return nil unless response.success?
+      JSON.parse(response.body).dig('data', 'author_id')
+    end
   end
 end
