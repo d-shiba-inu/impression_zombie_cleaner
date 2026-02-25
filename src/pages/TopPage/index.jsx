@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'; // 🌟 useEffect を追加
+import { ReplyCard } from './ReplyCard';
 
 // 🌟 バッジの種類に応じて色とラベルを返す関数
 const getBadgeStyle = (badgeType, verified) => {
@@ -161,65 +162,13 @@ export const TopPage = () => {
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '15px', marginTop: '20px' }}>
-            {visibleReplies.map((reply, index) => {
-              const isZombie = reply.is_zombie_copy;
-              
-              // 🌟 バッジ判定ロジックを適用
-              const badge = getBadgeStyle(reply.badge_type, reply.verified);
-
-              const cardStyle = {
-                padding: '12px',
-                background: isZombie ? 'rgba(255, 0, 0, 0.15)' : '#222',
-                border: isZombie ? '1px solid #ff0000' : '1px solid #444',
-                borderRadius: '4px',
-                transition: 'all 0.3s ease',
-                animation: isZombie ? 'pulse 2s infinite' : 'none'
-              };
-
-              return (
-                <div key={index} style={cardStyle}>
-                  {/* 投稿者情報エリア */}
-                  <div style={{ marginBottom: '10px', borderBottom: '1px solid #333', paddingBottom: '5px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                      <span style={{ fontWeight: 'bold', fontSize: '0.9em', color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                        {reply.name || "Unknown"}
-                      </span>
-                      {/* 🌟 バッジの色とアイコンを動的に表示 */}
-                      {reply.verified && <span style={{ color: badge.color, fontSize: '0.9em' }}>{badge.icon}</span>}
-                    </div>
-                    <div style={{ fontSize: '0.75em', color: '#888' }}>
-                      @{reply.screen_name || "id_unknown"}
-                    </div>
-                  </div>
-
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8em', marginBottom: '8px' }}>
-                    {/* 🌟 ステータスラベルの色と文字も連動 */}
-                    <span style={{ color: badge.color }}>
-                      STATUS: {badge.label}
-                    </span>
-                    <span style={{ color: isZombie ? '#ff0000' : '#00ff00', fontWeight: 'bold' }}>
-                      SIM: {(reply.similarity_rate * 100).toFixed(1)}%
-                    </span>
-                  </div>
-
-                  <p style={{ fontSize: '0.85em', margin: '10px 0', color: isZombie ? '#ffcccc' : '#eee', lineHeight: '1.4' }}>
-                    {reply.text}
-                  </p>
-
-                  {isZombie && (
-                    <div style={{ 
-                      fontSize: '0.7em', 
-                      color: '#ff0000', 
-                      textAlign: 'right', 
-                      fontWeight: 'bold',
-                      textShadow: '0 0 5px #ff0000' 
-                    }}>
-                      ⚠️ COPY-PASTE DETECTED
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+            {visibleReplies.map((reply, index) => (
+              <ReplyCard 
+                key={index} 
+                reply={reply} 
+                badge={getBadgeStyle(reply.badge_type, reply.verified)} 
+              />
+            ))}
           </div>
         </div>
       )}
