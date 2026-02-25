@@ -24,16 +24,17 @@ class Api::V1::AnalysesController < ApplicationController
 
     # 2. X API から本物のリプライを 100件取得
     client = XApi::Client.new
-    raw_replies = client.fetch_replies(tweet_id)
+    post_author_id = client.fetch_tweet_author_id(tweet_id) # 🌟 まず「投稿主のID」を特定する
+    raw_replies = client.fetch_replies(tweet_id, post_author_id) # 🌟 引数に post_author_id を渡す！
 
     return render json: { status: 'success', data: [] } if raw_replies.empty?
 
     puts "DEBUG: User Data Sample >>> #{raw_replies.first.inspect}"
 
-    # 3. 自作 Gem で判定
+    # 3. 自作 Gem で判定(言語判定や密度判定のロジックも走る)
     @results = ZombieDetector.detect_duplicates(raw_replies)
 
-    # 🌟 4. 【追加】判定結果を DB に一括保存（バルク・インサート）
+    # 🌟 4. 判定結果を DB に一括保存（バルク・インサート）
     # map を使って保存用のデータ配列をスリムに作成します
     save_data = @results.map do |res|
       {
