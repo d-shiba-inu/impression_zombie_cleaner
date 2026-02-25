@@ -49,7 +49,8 @@ module XApi
       }
     end
 
-    def fetch_replies(tweet_id)
+    # 🌟 引数に post_author_id を追加して、投稿主を除外
+    def fetch_replies(tweet_id, post_author_id = nil)
       conn = Faraday.new(url: SEARCH_URL) do |f|
         f.request :url_encoded
         f.adapter Faraday.default_adapter
@@ -63,7 +64,7 @@ module XApi
         req.params['query'] = "conversation_id:#{tweet_id} -is:retweet"
         req.params['max_results'] = 100 # まずは100件（無料/廉価枠の限界値）
         req.params['tweet.fields'] = 'author_id,created_at,text'
-        req.params['user.fields'] = 'verified,verified_type,description,name,username,public_metrics'
+        req.params['user.fields'] = 'verified,verified_type,description,name,username,public_metrics,created_at'
         req.params['expansions'] = 'author_id' # 投稿主の情報も一緒に連れてくる
       end
 
@@ -77,8 +78,14 @@ module XApi
       users = body.dig('includes', 'users')&.index_by { |u| u['id'] } || {}
       
       body['data'].map do |tweet|
+        author_id = tweet['author_id']
+        
+        # 🌟 【判定】投稿主本人のリプライなら除外（スキップ）
+        next if author_id == post_author_id
+
         user = users[tweet['author_id']] || {}
 
+        # 認証バッジ判定
         # 1. シンプルに API が返してくる verified (true/false) を尊重する
         is_verified = user['verified'] == true
 
@@ -95,18 +102,33 @@ module XApi
                        'none'
                      end
 
+        # 🌟【新機能】言語判定 (CLDを使用)
+        # リプライ本文の言語
+        reply_lang = CLD.detect(tweet['text'])[:code]
+        # プロフィール + 名前の言語
+        profile_text = "#{user['name']} #{user['description']}"
+        profile_lang = CLD.detect(profile_text)[:code]
+
+        # 🌟 3. 【新機能】投稿密度（Activity Density）用のデータ準備
+        metrics = user['public_metrics'] || {}
+        user_created_at = user['created_at'] ? Time.parse(user['created_at']) : Time.now
+
         {
           'text' => tweet['text'],
           'verified' => is_verified,
           'badge_type' => badge_type,
           'description' => user['description'] || "",
-          'created_at' => tweet['created_at'],
+          'created_at' => tweet['created_at'],  # ツイート投稿日
           'name' => user['name'] || "Unknown",        # ユーザーの表示名（例：スシロー）
           'screen_name' => user['username'] || "unknown_id", # ユーザーID（例：akindosushiroco）
           'followers_count' => user.dig('public_metrics', 'followers_count') || 0,
-          'following_count' => user.dig('public_metrics', 'following_count') || 0
+          'following_count' => user.dig('public_metrics', 'following_count') || 0,
+          'statuses_count'  => metrics['tweet_count'] || 0, # 🌟 全投稿数
+          'user_created_at' => user_created_at.to_s,       # 🌟 アカウント作成日
+          'reply_lang'      => reply_lang,                 # 🌟 本文の言語コード (ja, enなど)
+          'profile_lang'    => profile_lang                # 🌟 プロフィールの言語コード
         }
-      end
+      end.compact # next で飛ばした nil を除去！
     end
   end
 end
