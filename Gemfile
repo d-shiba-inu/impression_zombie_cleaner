@@ -76,3 +76,6 @@ gem 'zombie_detector', path: '/Users/daikikamata/projects/zombie_detector'
 gem 'dotenv-rails', groups: [:development, :test]
 
 gem 'faraday'
+
+gem 'cld'
+gem 'zombie_detector', path: '../zombie_detector'
