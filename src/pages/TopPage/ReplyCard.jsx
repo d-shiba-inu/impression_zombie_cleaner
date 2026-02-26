@@ -68,22 +68,32 @@ export const ReplyCard = ({ reply, badge }) => {
 
             {/* 2 & 3. 加点項目とそれぞれの点数 */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.75em' }}>
+              {/* 🌟 Rails側のロジックに合わせて表示 */}
               {reply.reply_lang !== reply.profile_lang && (
                 <div style={{ display: 'flex', justifyContent: 'space-between', color: '#ffcc00' }}>
-                  <span>🌐 Language Mismatch</span>
+                  <span>🌐 Language Mismatch ({reply.reply_lang} vs {reply.profile_lang})</span>
                   <span>+30pt</span>
                 </div>
               )}
+              {/* 🌟 similarity_rateの計算に合わせた表示 */}
               {reply.similarity_rate > 0.4 && (
                 <div style={{ display: 'flex', justifyContent: 'space-between', color: '#ff4444' }}>
-                  <span>📋 High Similarity</span>
+                  <span>📋 High Similarity ({(reply.similarity_rate * 100).toFixed(0)}%)</span>
                   <span>+40pt</span>
                 </div>
               )}
+              {/* 🌟 投稿数の計算に合わせた表示 */}
               {reply.statuses_count > 50000 && (
                 <div style={{ display: 'flex', justifyContent: 'space-between', color: '#aaa' }}>
                   <span>🤖 High Post Density</span>
                   <span>+15pt</span>
+                </div>
+              )}
+              {/* 🌟 その他（基本スコアなど）があれば追加 */}
+              {(reply.score - ((reply.reply_lang !== reply.profile_lang ? 30 : 0) + (reply.similarity_rate > 0.4 ? 40 : 0) + (reply.statuses_count > 50000 ? 15 : 0))) > 0 && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', color: '#666' }}>
+                  <span>🔍 Other Factors</span>
+                  <span>+{reply.score - ((reply.reply_lang !== reply.profile_lang ? 30 : 0) + (reply.similarity_rate > 0.4 ? 40 : 0) + (reply.statuses_count > 50000 ? 15 : 0))}pt</span>
                 </div>
               )}
               {/* 何も加点がない場合 */}
