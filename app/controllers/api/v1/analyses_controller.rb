@@ -57,7 +57,7 @@ class Api::V1::AnalysesController < ApplicationController
         score: res['score'],
         reply_lang: res['reply_lang'],     
         profile_lang: res['profile_lang'], 
-        breakdown: res['breakdown'].to_json, # 🌟 内訳ハッシュをJSON文字列にして保存
+        breakdown: res['breakdown'], # 🌟 内訳ハッシュをJSON文字列にして保存
         followers_count: res['followers_count'], # 🌟 追加！
         following_count: res['following_count'], # 🌟 追加！
         statuses_count:  res['statuses_count'],  # 🌟 追加！
