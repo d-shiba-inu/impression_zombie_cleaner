@@ -68,55 +68,83 @@ export const ReplyCard = ({ reply, badge }) => {
 
             {/* 2 & 3. 加点項目とそれぞれの点数 */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.75em' }}>
-              {/* 🌟 Rails側のロジックに合わせて表示 */}
+              {/* 言語判定 */}
               {reply.reply_lang !== reply.profile_lang && (
                 <div style={{ display: 'flex', justifyContent: 'space-between', color: '#ffcc00' }}>
-                  <span>🌐 Language Mismatch ({reply.reply_lang} vs {reply.profile_lang})</span>
+                  <span>🌐 Lang Mismatch ({reply.reply_lang} vs {reply.profile_lang})</span>
                   <span>+30pt</span>
                 </div>
               )}
-              {/* 🌟 similarity_rateの計算に合わせた表示 */}
+
+              {/* 類似度判定 */}
               {reply.similarity_rate > 0.4 && (
                 <div style={{ display: 'flex', justifyContent: 'space-between', color: '#ff4444' }}>
-                  <span>📋 High Similarity ({(reply.similarity_rate * 100).toFixed(0)}%)</span>
+                  <span>📋 High Similarity ({(reply.similarity_rate * 100).toFixed(1)}%)</span>
                   <span>+40pt</span>
                 </div>
               )}
-              {/* 🌟 投稿数の計算に合わせた表示 */}
-              {reply.statuses_count > 50000 && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', color: '#aaa' }}>
-                  <span>🤖 High Post Density</span>
+
+              {/* 🌟 メトリクス判定（Other Factors の正体！） */}
+              {reply.followers_count < 10 && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', color: '#ff8800' }}>
+                  <span>👤 Low Followers ({reply.followers_count})</span>
                   <span>+15pt</span>
                 </div>
               )}
-              {/* 本文のコピペ疑い (Gemが is_copy_text などを返している場合) */}
-              {reply.similarity_rate > 0.8 && (
+
+              {reply.statuses_count > 50000 && (
                 <div style={{ display: 'flex', justifyContent: 'space-between', color: '#ff4444' }}>
-                  <span>📋 Critical Copy Content</span>
-                  <span>+50pt</span>
-                </div>
-              )}
-              {/* アカウントの作りたて判定 */}
-              {new Date(reply.user_created_at) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', color: '#ff8800' }}>
-                  <span>👶 Newly Created Account</span>
+                  <span>🤖 Bot-like Activity ({reply.statuses_count.toLocaleString()} posts)</span>
                   <span>+20pt</span>
                 </div>
               )}
-              {/* フォロワーが極端に少ない（ゾンビによくある傾向） */}
-              {reply.followers_count < 5 && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', color: '#ff8800' }}>
-                  <span>👤 Very Few Followers</span>
+
+              {/* 🌟 5. 【追加】バッジと名前の矛盾判定 (Gemの隠しルール) */}
+              {reply.verified && reply.score > 50 && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', color: '#3399ff' }}>
+                  <span>💎 Blue Badge Risk (High score despite Verified)</span>
                   <span>+10pt</span>
                 </div>
               )}
-              {/* 🌟 その他（基本スコアなど）があれば追加 */}
-              {(reply.score - ((reply.reply_lang !== reply.profile_lang ? 30 : 0) + (reply.similarity_rate > 0.4 ? 40 : 0) + (reply.statuses_count > 50000 ? 15 : 0))) > 0 && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', color: '#666' }}>
-                  <span>🔍 Other Factors</span>
-                  <span>+{reply.score - ((reply.reply_lang !== reply.profile_lang ? 30 : 0) + (reply.similarity_rate > 0.4 ? 40 : 0) + (reply.statuses_count > 50000 ? 15 : 0))}pt</span>
+
+              {/* 🌟 6. 【追加】プロフィール文の薄さ判定 */}
+              {(!reply.description || reply.description.length < 10) && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', color: '#888' }}>
+                  <span>📄 Empty/Short Description</span>
+                  <span>+5pt</span>
                 </div>
               )}
+
+              {/* 🌟 7. 【追加】アカウント作成からの経過時間（新しすぎる場合） */}
+              {new Date(reply.user_created_at) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', color: '#ff00ff' }}>
+                  <span>🐣 Ultra Fresh Account (under 7 days)</span>
+                  <span>+25pt</span>
+                </div>
+              )}
+
+              {/* 最終手段：これでも余る端数がある場合（最小単位の調整用） */}
+              {(() => {
+                const known = 
+                  (reply.reply_lang !== reply.profile_lang ? 30 : 0) + 
+                  (reply.similarity_rate > 0.4 ? 40 : 0) +
+                  (reply.followers_count < 10 ? 15 : 0) +
+                  (reply.statuses_count > 50000 ? 20 : 0) +
+                  (reply.verified && reply.score > 50 ? 10 : 0) +
+                  (!reply.description || reply.description.length < 10 ? 5 : 0) +
+                  (new Date(reply.user_created_at) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) ? 25 : 0);
+                
+                const mystery = reply.score - known;
+                if (mystery !== 0) {
+                  return (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', color: '#444', fontStyle: 'italic', borderTop: '1px solid #333' }}>
+                      <span>🔍 Misc. Neural Weights</span>
+                      <span>{mystery > 0 ? `+${mystery}` : mystery}pt</span>
+                    </div>
+                  );
+                }
+                return null;
+              })()}
               {/* 何も加点がない場合 */}
               {reply.score === 0 && (
                 <div style={{ color: '#666', fontStyle: 'italic', textAlign: 'center' }}>No risk factors detected.</div>
