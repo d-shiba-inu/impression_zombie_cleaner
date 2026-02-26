@@ -8,7 +8,42 @@ class Api::V1::AnalysesController < ApplicationController
     # 1. フロントから届いた URL を解析して Tweet ID を抜き出す
     # 例: https://x.com/username/status/123456789 -> 123456789
     tweet_url = params[:url]
+    # 🌟 デモ用の特定のURL
+    demo_url = "https://x.com/minogashi205/status/2025474554320314713?sort_replies=recency"
     
+    # A. デモモードかつ、知らないURLが来たらブロックする
+    if ENV['DEMO_MODE'] == 'true' && tweet_url != demo_url
+      render json: { 
+        status: 'error', 
+        message: '現在はデモ期間中につき、特定のURLのみ解析可能です。履歴から過去の解析結果を見るか、デモ用URLを試してほしいワン！🐾' 
+      }, status: :forbidden
+      return
+    end
+
+    # B. デモ用URLが来たら、APIを叩かずにDBから取得して返す
+    if tweet_url == demo_url
+      # 🌟 Analysisモデルから、このURLに一致するデータを取得
+      stored_analyses = Analysis.where(url: demo_url).order(created_at: :desc)
+
+      if stored_analyses.any?
+        # Reactが期待する形式（@resultsと同じ形）に変換
+        @results = stored_analyses.map do |r|
+          # DBのデータをハッシュに変換し、Gemのキー名に合わせる
+          r.attributes.merge({
+            'is_zombie_copy' => r.is_zombie,
+            'breakdown' => r.breakdown # JSON型なのでそのままハッシュとして扱える
+          })
+        end
+
+        render json: {
+          status: 'success',
+          message: "デモ用データの取得に成功したワン！🐾",
+          data: @results
+        }
+        return
+      end
+    end
+
     if tweet_url.blank?
       render json: { status: 'error', message: 'URLが空だワン！🐶' }, status: :bad_request
       return
@@ -57,7 +92,7 @@ class Api::V1::AnalysesController < ApplicationController
         score: res['score'],
         reply_lang: res['reply_lang'],     
         profile_lang: res['profile_lang'], 
-        breakdown: res['breakdown'].to_json, # 🌟 内訳ハッシュをJSON文字列にして保存
+        breakdown: res['breakdown'], # 🌟 内訳ハッシュをJSON文字列にして保存
         followers_count: res['followers_count'], # 🌟 追加！
         following_count: res['following_count'], # 🌟 追加！
         statuses_count:  res['statuses_count'],  # 🌟 追加！
