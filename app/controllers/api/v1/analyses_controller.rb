@@ -24,16 +24,24 @@ class Api::V1::AnalysesController < ApplicationController
 
     # 2. X API から本物のリプライを 100件取得
     client = XApi::Client.new
-    raw_replies = client.fetch_replies(tweet_id)
+    post_author_id = client.fetch_tweet_author_id(tweet_id) # 🌟 まず「投稿主のID」を特定する
+    raw_replies = client.fetch_replies(tweet_id, post_author_id) # 🌟 引数に post_author_id を渡す！
 
     return render json: { status: 'success', data: [] } if raw_replies.empty?
 
     puts "DEBUG: User Data Sample >>> #{raw_replies.first.inspect}"
 
-    # 3. 自作 Gem で判定
+    # 3. 自作 Gem で判定(言語判定や密度判定のロジックも走る)
     @results = ZombieDetector.detect_duplicates(raw_replies)
 
-    # 🌟 4. 【追加】判定結果を DB に一括保存（バルク・インサート）
+    # 🌟 各リプライに「内訳」を付け加える
+    @results.each do |res|
+      # GemのDetectorクラスを呼び出して、詳細な内訳を取得
+      detector = ZombieDetector::Detector.new(res)
+      res['breakdown'] = detector.breakdown[:details] # { age: 10, lang: 30 ... } が入る
+    end
+
+    # 🌟 4. 判定結果を DB に一括保存（バルク・インサート）
     # map を使って保存用のデータ配列をスリムに作成します
     save_data = @results.map do |res|
       {
@@ -42,11 +50,18 @@ class Api::V1::AnalysesController < ApplicationController
         screen_name: res['screen_name'],
         text: res['text'],
         similarity_rate: res['similarity_rate'],
-        score: res['score'],
         is_zombie: res['is_zombie_copy'], # Gemのキー名に合わせる
         verified: res['verified'],
         badge_type: res['badge_type'],
         description: res['description'],
+        score: res['score'],
+        reply_lang: res['reply_lang'],     
+        profile_lang: res['profile_lang'], 
+        breakdown: res['breakdown'].to_json, # 🌟 内訳ハッシュをJSON文字列にして保存
+        followers_count: res['followers_count'], # 🌟 追加！
+        following_count: res['following_count'], # 🌟 追加！
+        statuses_count:  res['statuses_count'],  # 🌟 追加！
+        user_created_at: res['user_created_at'], # 🌟 追加！
         created_at: Time.current,
         updated_at: Time.current
       }
@@ -55,6 +70,7 @@ class Api::V1::AnalysesController < ApplicationController
     # 🌟 Rails 6以降の爆速保存メソッド
     Analysis.insert_all(save_data) if save_data.any?
 
+    # 🌟 React に @results（内訳付き）を返す
     render json: {
       status: 'success',
       message: "#{raw_replies.size}件を解析・保存したワン！🐾",
@@ -77,8 +93,10 @@ class Api::V1::AnalysesController < ApplicationController
     end
 
     # 1. 自作Gemで判定（既存ロジック）
-    zombie_score = ZombieDetector.score(user_data)
-    is_zombie = ZombieDetector.zombie?(user_data)
+    # 🌟 ここで Detector インスタンスを作る
+    detector = ZombieDetector::Detector.new(user_data)
+    zombie_score = ZombieDetector.score(user_data) # detector を使ってスコア計算
+    is_zombie = ZombieDetector.zombie?(user_data) # 判定
 
     # 2. 🌟 檻（DB）に保存する
     # analysis_params を通さず、ここで明示的にマッピングします
@@ -91,7 +109,12 @@ class Api::V1::AnalysesController < ApplicationController
       is_zombie: is_zombie,
       verified: !!user_data['verified'],
       badge_type: user_data['badge_type'],
-      description: user_data['description']
+      description: user_data['description'],
+      followers_count: user_data['followers_count'],
+      following_count: user_data['following_count'],
+      statuses_count:  user_data['statuses_count'],
+      user_created_at: user_data['user_created_at'],
+      breakdown: detector.breakdown[:details] # Analysis.newなら .to_json は自動でやってくれる
     )
 
     # 3. 保存に成功したら React に返す
