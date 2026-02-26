@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 
 export const ReplyCard = ({ reply, badge }) => {
   const [showDetail, setShowDetail] = useState(false); // 🌟 ここでならuseStateを使ってもOK！
-  const isZombie = reply.is_zombie_copy;
+  const isZombie = reply.is_zombie_copy || reply.is_zombie;
 
   const cardStyle = {
     padding: '12px',
