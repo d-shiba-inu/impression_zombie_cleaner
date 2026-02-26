@@ -34,6 +34,13 @@ class Api::V1::AnalysesController < ApplicationController
     # 3. 自作 Gem で判定(言語判定や密度判定のロジックも走る)
     @results = ZombieDetector.detect_duplicates(raw_replies)
 
+    # 🌟 各リプライに「内訳」を付け加える
+    @results.each do |res|
+      # GemのDetectorクラスを呼び出して、詳細な内訳を取得
+      detector = ZombieDetector::Detector.new(res)
+      res['breakdown'] = detector.breakdown[:details] # { age: 10, lang: 30 ... } が入る
+    end
+
     # 🌟 4. 判定結果を DB に一括保存（バルク・インサート）
     # map を使って保存用のデータ配列をスリムに作成します
     save_data = @results.map do |res|
@@ -62,6 +69,7 @@ class Api::V1::AnalysesController < ApplicationController
     # 🌟 Rails 6以降の爆速保存メソッド
     Analysis.insert_all(save_data) if save_data.any?
 
+    # 🌟 React に @results（内訳付き）を返す
     render json: {
       status: 'success',
       message: "#{raw_replies.size}件を解析・保存したワン！🐾",
