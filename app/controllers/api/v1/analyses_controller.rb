@@ -57,6 +57,7 @@ class Api::V1::AnalysesController < ApplicationController
         score: res['score'],
         reply_lang: res['reply_lang'],     
         profile_lang: res['profile_lang'], 
+        breakdown: res['breakdown'].to_json, # 🌟 内訳ハッシュをJSON文字列にして保存
         followers_count: res['followers_count'], # 🌟 追加！
         following_count: res['following_count'], # 🌟 追加！
         statuses_count:  res['statuses_count'],  # 🌟 追加！
@@ -92,8 +93,10 @@ class Api::V1::AnalysesController < ApplicationController
     end
 
     # 1. 自作Gemで判定（既存ロジック）
-    zombie_score = ZombieDetector.score(user_data)
-    is_zombie = ZombieDetector.zombie?(user_data)
+    # 🌟 ここで Detector インスタンスを作る
+    detector = ZombieDetector::Detector.new(user_data)
+    zombie_score = ZombieDetector.score(user_data) # detector を使ってスコア計算
+    is_zombie = ZombieDetector.zombie?(user_data) # 判定
 
     # 2. 🌟 檻（DB）に保存する
     # analysis_params を通さず、ここで明示的にマッピングします
@@ -110,7 +113,8 @@ class Api::V1::AnalysesController < ApplicationController
       followers_count: user_data['followers_count'],
       following_count: user_data['following_count'],
       statuses_count:  user_data['statuses_count'],
-      user_created_at: user_data['user_created_at']
+      user_created_at: user_data['user_created_at'],
+      breakdown: detector.breakdown[:details] # Analysis.newなら .to_json は自動でやってくれる
     )
 
     # 3. 保存に成功したら React に返す
