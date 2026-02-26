@@ -53,14 +53,44 @@ export const ReplyCard = ({ reply, badge }) => {
         </button>
 
         {showDetail && (
-          <div style={{ marginTop: '8px', padding: '8px', background: 'rgba(0,0,0,0.2)', borderRadius: '4px', fontSize: '0.75em', color: '#aaa' }}>
-            {reply.reply_lang !== reply.profile_lang && (
-              <div>・Language mismatch ({reply.reply_lang} vs {reply.profile_lang})</div>
-            )}
-            {reply.similarity_rate > 0.4 && (
-              <div>・High text similarity ({(reply.similarity_rate * 100).toFixed(1)}%)</div>
-            )}
-            <div>・Account Activity: {reply.statuses_count} posts</div>
+          <div style={{ 
+            marginTop: '10px', 
+            padding: '10px', 
+            background: 'rgba(0,0,0,0.4)', 
+            borderRadius: '6px',
+            border: '1px dashed #444'
+          }}>
+            {/* 1. 合計点数 */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', borderBottom: '1px solid #333', paddingBottom: '4px' }}>
+              <span style={{ fontSize: '0.7em', color: '#00ff00' }}>TOTAL RISK SCORE</span>
+              <span style={{ fontSize: '0.9em', fontWeight: 'bold', color: isZombie ? '#ff0000' : '#00ff00' }}>{reply.score}pt</span>
+            </div>
+
+            {/* 2 & 3. 加点項目とそれぞれの点数 */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.75em' }}>
+              {reply.reply_lang !== reply.profile_lang && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', color: '#ffcc00' }}>
+                  <span>🌐 Language Mismatch</span>
+                  <span>+30pt</span>
+                </div>
+              )}
+              {reply.similarity_rate > 0.4 && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', color: '#ff4444' }}>
+                  <span>📋 High Similarity</span>
+                  <span>+40pt</span>
+                </div>
+              )}
+              {reply.statuses_count > 50000 && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', color: '#aaa' }}>
+                  <span>🤖 High Post Density</span>
+                  <span>+15pt</span>
+                </div>
+              )}
+              {/* 何も加点がない場合 */}
+              {reply.score === 0 && (
+                <div style={{ color: '#666', fontStyle: 'italic', textAlign: 'center' }}>No risk factors detected.</div>
+              )}
+            </div>
           </div>
         )}
       </div>
