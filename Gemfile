@@ -71,11 +71,9 @@ gem "foreman", "~> 0.90.0"
 
 gem "rack-cors", "~> 3.0"
 
-gem 'zombie_detector', path: '/Users/daikikamata/projects/zombie_detector'
-
 gem 'dotenv-rails', groups: [:development, :test]
 
 gem 'faraday'
 
 gem 'cld'
-gem 'zombie_detector', path: '../zombie_detector'
+gem 'zombie_detector', path: 'vendor/gems/zombie_detector'

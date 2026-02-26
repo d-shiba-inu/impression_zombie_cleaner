@@ -1,5 +1,5 @@
 PATH
-  remote: /Users/daikikamata/projects/zombie_detector
+  remote: vendor/gems/zombie_detector
   specs:
     zombie_detector (0.1.0)
 
