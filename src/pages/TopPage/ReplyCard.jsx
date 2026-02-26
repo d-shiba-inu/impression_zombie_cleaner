@@ -66,86 +66,53 @@ export const ReplyCard = ({ reply, badge }) => {
               <span style={{ fontSize: '0.9em', fontWeight: 'bold', color: isZombie ? '#ff0000' : '#00ff00' }}>{reply.score}pt</span>
             </div>
 
-            {/* 2 & 3. 加点項目とそれぞれの点数 */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.75em' }}>
-              {/* 言語判定 */}
-              {reply.reply_lang !== reply.profile_lang && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', color: '#ffcc00' }}>
-                  <span>🌐 Lang Mismatch ({reply.reply_lang} vs {reply.profile_lang})</span>
-                  <span>+30pt</span>
-                </div>
-              )}
-
-              {/* 類似度判定 */}
-              {reply.similarity_rate > 0.4 && (
+            {/* 2. 加点項目とそれぞれの点数 */}
+              {/* 🌟 A. コピペ判定 (GemのDuplicateCheckerが計算したもの) */}
+              {reply.similarity_rate > 0 && (
                 <div style={{ display: 'flex', justifyContent: 'space-between', color: '#ff4444' }}>
-                  <span>📋 High Similarity ({(reply.similarity_rate * 100).toFixed(1)}%)</span>
-                  <span>+40pt</span>
+                  <span>📋 Content Similarity ({(reply.similarity_rate * 100).toFixed(0)}%)</span>
+                  <span>+{Math.floor(reply.similarity_rate * 50)}pt</span>
                 </div>
               )}
 
-              {/* 🌟 メトリクス判定（Other Factors の正体！） */}
-              {reply.followers_count < 10 && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', color: '#ff8800' }}>
-                  <span>👤 Low Followers ({reply.followers_count})</span>
-                  <span>+15pt</span>
-                </div>
-              )}
+              {/* 🌟 B. Railsから届いた内訳 (breakdown) を自動で並べるワン！ */}
+              {reply.breakdown && Object.entries(reply.breakdown).map(([key, val]) => {
+                if (val === 0) return null; // 0点の項目は出さない
 
-              {reply.statuses_count > 50000 && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', color: '#ff4444' }}>
-                  <span>🤖 Bot-like Activity ({reply.statuses_count.toLocaleString()} posts)</span>
-                  <span>+20pt</span>
-                </div>
-              )}
+                // キー名を人間が見やすい名前に変換する辞書だワン
+                const labels = {
+                  age: "🐣 Account Age Risk",
+                  ff_ratio: "👥 Reciprocal FF Ratio",
+                  verified: "💎 Verified Blue Bonus",
+                  density: "🤖 Post Activity Density",
+                  lang: "🌐 Language Mismatch"
+                };
 
-              {/* 🌟 5. 【追加】バッジと名前の矛盾判定 (Gemの隠しルール) */}
-              {reply.verified && reply.score > 50 && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', color: '#3399ff' }}>
-                  <span>💎 Blue Badge Risk (High score despite Verified)</span>
-                  <span>+10pt</span>
-                </div>
-              )}
+                return (
+                  <div key={key} style={{ display: 'flex', justifyContent: 'space-between', color: '#aaa' }}>
+                    <span>{labels[key] || key.toUpperCase()}</span>
+                    <span>+{val}pt</span>
+                  </div>
+                );
+              })}
 
-              {/* 🌟 6. 【追加】プロフィール文の薄さ判定 */}
-              {(!reply.description || reply.description.length < 10) && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', color: '#888' }}>
-                  <span>📄 Empty/Short Description</span>
-                  <span>+5pt</span>
-                </div>
-              )}
-
-              {/* 🌟 7. 【追加】アカウント作成からの経過時間（新しすぎる場合） */}
-              {new Date(reply.user_created_at) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', color: '#ff00ff' }}>
-                  <span>🐣 Ultra Fresh Account (under 7 days)</span>
-                  <span>+25pt</span>
-                </div>
-              )}
-
-              {/* 最終手段：これでも余る端数がある場合（最小単位の調整用） */}
+              {/* 🌟 C. 端数調整がある場合 (Gemの合計点と内訳の合計に差がある時) */}
               {(() => {
-                const known = 
-                  (reply.reply_lang !== reply.profile_lang ? 30 : 0) + 
-                  (reply.similarity_rate > 0.4 ? 40 : 0) +
-                  (reply.followers_count < 10 ? 15 : 0) +
-                  (reply.statuses_count > 50000 ? 20 : 0) +
-                  (reply.verified && reply.score > 50 ? 10 : 0) +
-                  (!reply.description || reply.description.length < 10 ? 5 : 0) +
-                  (new Date(reply.user_created_at) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) ? 25 : 0);
+                const breakdownSum = reply.breakdown ? Object.values(reply.breakdown).reduce((a, b) => a + b, 0) : 0;
+                const jaccardScore = reply.similarity_rate ? Math.floor(reply.similarity_rate * 50) : 0;
+                const diff = reply.score - (breakdownSum + jaccardScore);
                 
-                const mystery = reply.score - known;
-                if (mystery !== 0) {
+                if (diff !== 0) {
                   return (
-                    <div style={{ display: 'flex', justifyContent: 'space-between', color: '#444', fontStyle: 'italic', borderTop: '1px solid #333' }}>
-                      <span>🔍 Misc. Neural Weights</span>
-                      <span>{mystery > 0 ? `+${mystery}` : mystery}pt</span>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', color: '#555', fontStyle: 'italic', borderTop: '1px solid #333', paddingTop: '4px' }}>
+                      <span>🔍 Other Adjustments</span>
+                      <span>{diff > 0 ? `+${diff}` : diff}pt</span>
                     </div>
                   );
                 }
-                return null;
               })()}
-              {/* 何も加点がない場合 */}
+            {/* 3. 何も加点がない場合 */}
               {reply.score === 0 && (
                 <div style={{ color: '#666', fontStyle: 'italic', textAlign: 'center' }}>No risk factors detected.</div>
               )}
