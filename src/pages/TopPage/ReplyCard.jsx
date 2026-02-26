@@ -89,6 +89,27 @@ export const ReplyCard = ({ reply, badge }) => {
                   <span>+15pt</span>
                 </div>
               )}
+              {/* 本文のコピペ疑い (Gemが is_copy_text などを返している場合) */}
+              {reply.similarity_rate > 0.8 && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', color: '#ff4444' }}>
+                  <span>📋 Critical Copy Content</span>
+                  <span>+50pt</span>
+                </div>
+              )}
+              {/* アカウントの作りたて判定 */}
+              {new Date(reply.user_created_at) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', color: '#ff8800' }}>
+                  <span>👶 Newly Created Account</span>
+                  <span>+20pt</span>
+                </div>
+              )}
+              {/* フォロワーが極端に少ない（ゾンビによくある傾向） */}
+              {reply.followers_count < 5 && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', color: '#ff8800' }}>
+                  <span>👤 Very Few Followers</span>
+                  <span>+10pt</span>
+                </div>
+              )}
               {/* 🌟 その他（基本スコアなど）があれば追加 */}
               {(reply.score - ((reply.reply_lang !== reply.profile_lang ? 30 : 0) + (reply.similarity_rate > 0.4 ? 40 : 0) + (reply.statuses_count > 50000 ? 15 : 0))) > 0 && (
                 <div style={{ display: 'flex', justifyContent: 'space-between', color: '#666' }}>

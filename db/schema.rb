@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_02_25_105016) do
+ActiveRecord::Schema[7.1].define(version: 2026_02_26_055438) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -29,6 +29,10 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_25_105016) do
     t.string "badge_type"
     t.string "reply_lang"
     t.string "profile_lang"
+    t.integer "followers_count"
+    t.integer "following_count"
+    t.integer "statuses_count"
+    t.datetime "user_created_at"
     t.index ["url"], name: "index_analyses_on_url"
   end
 
