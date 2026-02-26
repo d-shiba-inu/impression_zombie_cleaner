@@ -50,6 +50,10 @@ class Api::V1::AnalysesController < ApplicationController
         score: res['score'],
         reply_lang: res['reply_lang'],     
         profile_lang: res['profile_lang'], 
+        followers_count: res['followers_count'], # 🌟 追加！
+        following_count: res['following_count'], # 🌟 追加！
+        statuses_count:  res['statuses_count'],  # 🌟 追加！
+        user_created_at: res['user_created_at'], # 🌟 追加！
         created_at: Time.current,
         updated_at: Time.current
       }
@@ -94,7 +98,11 @@ class Api::V1::AnalysesController < ApplicationController
       is_zombie: is_zombie,
       verified: !!user_data['verified'],
       badge_type: user_data['badge_type'],
-      description: user_data['description']
+      description: user_data['description'],
+      followers_count: user_data['followers_count'],
+      following_count: user_data['following_count'],
+      statuses_count:  user_data['statuses_count'],
+      user_created_at: user_data['user_created_at']
     )
 
     # 3. 保存に成功したら React に返す
