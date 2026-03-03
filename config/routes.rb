@@ -8,4 +8,9 @@ Rails.application.routes.draw do
       end
     end
   end
+
+  # 🌟 「何もない場所」に来たら、frontendという場所へ案内する
+  root "frontend#index"
+  # 🌟 ReactのURL（/loginなど）をリロードしても大丈夫なようにする
+  get "*path", to: "frontend#index", constraints: ->(req) { !req.xhr? && req.format.html? }
 end
