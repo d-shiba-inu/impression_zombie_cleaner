@@ -9,10 +9,10 @@ class Api::V1::AnalysesController < ApplicationController
     # 例: https://x.com/username/status/123456789 -> 123456789
     tweet_url = params[:url]
     # 🌟 デモ用の特定のURL
-    demo_url = "https://x.com/minogashi205/status/2025474554320314713?sort_replies=recency"
+    demo_id = "2025474554320314713"  # イケメンマッチョ犬ツイートのID
     
     # A. デモモードかつ、知らないURLが来たらブロックする
-    if ENV['DEMO_MODE'] == 'true' && tweet_url != demo_url
+    if ENV['DEMO_MODE'] == 'true' && !tweet_url.include?(demo_id)
       render json: { 
         status: 'error', 
         message: '現在はデモ期間中につき、特定のURLのみ解析可能です。履歴から過去の解析結果を見るか、デモ用URLを試してほしいワン！🐾' 
@@ -22,7 +22,7 @@ class Api::V1::AnalysesController < ApplicationController
 
     # B. デモ用URLが来たら、APIを叩かずにDBから取得して返す
     # 🌟 Analysisモデルから、このURLに一致するデータを取得
-    stored_analyses = Analysis.where(url: demo_url).order(created_at: :desc)
+    stored_analyses = Analysis.where("url LIKE ?", "%#{demo_id}%").order(created_at: :desc)
 
     if stored_analyses.any?
       # Reactが期待する形式（@resultsと同じ形）に変換
