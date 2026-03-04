@@ -38,7 +38,7 @@ export const TopPage = () => {
   // 🌟 【追加】RailsのDBから履歴を取得する関数
   const fetchHistory = async () => {
     try {
-      const response = await fetch('http://localhost:3000/api/v1/analyses/history');
+      const response = await fetch('/api/v1/analyses/history');
       const result = await response.json();
       if (result.status === 'success') {
         setHistory(result.data); // DBのデータをセット
@@ -62,7 +62,7 @@ export const TopPage = () => {
     
     setLoading(true);
     try {
-      const response = await fetch(`http://localhost:3000/api/v1/analyses?url=${encodeURIComponent(url)}`);
+      const response = await fetch(`/api/v1/analyses?url=${encodeURIComponent(url)}`);
       const result = await response.json();
       
       if (result.status === 'success') {
@@ -89,7 +89,7 @@ export const TopPage = () => {
     if (!url) return alert("URLを入力してほしいワン！🐶");
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:3000/api/v1/analyses', {
+      const response = await fetch('/api/v1/analyses', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url: url }),
