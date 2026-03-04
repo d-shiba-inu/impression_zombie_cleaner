@@ -58,6 +58,7 @@ class Api::V1::AnalysesController < ApplicationController
     client = XApi::Client.new
 
     puts "DEBUG: Token exists? #{ENV['X_BEARER_TOKEN'].present?}"
+    puts "DEBUG: Fetching replies for ID: #{tweet_id}"
 
     post_author_id = client.fetch_tweet_author_id(tweet_id) # 🌟 まず「投稿主のID」を特定する
     raw_replies = client.fetch_replies(tweet_id, post_author_id) # 🌟 引数に post_author_id を渡す！
