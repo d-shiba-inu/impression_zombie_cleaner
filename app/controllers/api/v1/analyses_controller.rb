@@ -21,27 +21,24 @@ class Api::V1::AnalysesController < ApplicationController
     end
 
     # B. デモ用URLが来たら、APIを叩かずにDBから取得して返す
-    if tweet_url == demo_url
-      # 🌟 Analysisモデルから、このURLに一致するデータを取得
-      stored_analyses = Analysis.where(url: demo_url).order(created_at: :desc)
+    # 🌟 Analysisモデルから、このURLに一致するデータを取得
+    stored_analyses = Analysis.where(url: demo_url).order(created_at: :desc)
 
-      if stored_analyses.any?
-        # Reactが期待する形式（@resultsと同じ形）に変換
-        @results = stored_analyses.map do |r|
-          # DBのデータをハッシュに変換し、Gemのキー名に合わせる
-          r.attributes.merge({
-            'is_zombie_copy' => r.is_zombie,
-            'breakdown' => r.breakdown # JSON型なのでそのままハッシュとして扱える
-          })
-        end
-
-        render json: {
-          status: 'success',
-          message: "デモ用データの取得に成功したワン！🐾",
-          data: @results
-        }
-        return
+    if stored_analyses.any?
+      # Reactが期待する形式（@resultsと同じ形）に変換
+      @results = stored_analyses.map do |r|
+        # DBのデータをハッシュに変換し、Gemのキー名に合わせる
+        r.attributes.merge({
+          'is_zombie_copy' => r.is_zombie,
+          'breakdown' => r.breakdown # JSON型なのでそのままハッシュとして扱える
+        })
       end
+      render json: {
+        status: 'success',
+        message: "デモ用データの取得に成功したワン！🐾",
+        data: @results
+      }
+      return
     end
 
     if tweet_url.blank?
