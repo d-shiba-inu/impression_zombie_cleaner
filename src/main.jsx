@@ -4,6 +4,6 @@ import { TopPage } from './pages/TopPage/index'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <App />
+    <TopPage />
   </React.StrictMode>,
 )
