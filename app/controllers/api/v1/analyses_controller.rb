@@ -59,6 +59,17 @@ class Api::V1::AnalysesController < ApplicationController
     post_author_id = client.fetch_tweet_author_id(tweet_id) # 🌟 まず「投稿主のID」を特定する
     raw_replies = client.fetch_replies(tweet_id, post_author_id) # 🌟 引数に post_author_id を渡す！
 
+    if raw_replies.nil? || raw_replies.empty?
+      # 🌟 何も取れなかった時は、ちゃんとメッセージを返すワン！
+      render json: { 
+        status: 'success', 
+        data: [], 
+        message: "リプライが見つからなかったワン...😢（7日以上前のポストは解析できない制限があるワン）",
+        is_demo: ENV['DEMO_MODE'] == 'true'
+      }
+      return
+    end
+
     return render json: { status: 'success', data: [], is_demo: ENV['DEMO_MODE'] == 'true' } if raw_replies.empty?
 
     puts "DEBUG: Raw Replies Count: #{raw_replies&.size}"

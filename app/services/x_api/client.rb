@@ -35,7 +35,7 @@ module XApi
       }
     
       body = get_api_data(SEARCH_URL, params)
-      return [] if body.nil? || body['data'].nil?
+      return [] if body.nil? || !body.is_a?(Hash) || body['data'].nil?
 
       # Expansionからユーザー情報を引く
       users = body.dig('includes', 'users')&.index_by { |u| u['id'] } || {}
