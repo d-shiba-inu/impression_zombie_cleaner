@@ -27,7 +27,7 @@ module XApi
     # 🌟 引数に post_author_id を追加して、投稿主を除外
     def fetch_replies(tweet_id, post_author_id = nil)
       params = {
-        'query' => "conversation_id:#{tweet_id} -is:retweet",
+        'query' => "conversation_id:#{tweet_id}", # -is:retweet
         'max_results' => 100, # まずは100件（無料/廉価枠の限界値）
         'tweet.fields' => 'author_id,created_at,text',
         'user.fields' => 'verified,verified_type,description,name,username,public_metrics,created_at,pinned_tweet_id',
