@@ -292,6 +292,7 @@ styleTag.innerHTML = `
     padding: 0;
     background-color: #1a1a1a; 
   }
+
   @keyframes pulse {
     0% { box-shadow: 0 0 5px rgba(255,0,0,0.2); }
     50% { box-shadow: 0 0 15px rgba(255,0,0,0.4); }
