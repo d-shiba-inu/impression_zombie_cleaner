@@ -16,7 +16,7 @@ module XApi
       # 🌟 URLからIDだけを抜き出す（安全策）
       # https://x.com/akindosushiroco -> akindosushiroco に変換
       clean_username = username.split('/').last.gsub('@', '')
-      data = get_api_data("#{BASE_URL}#{clean_username}", { 'user.fields' => 'public_metrics,description,created_at,verified,name,pinned_tweet_id' })
+      data = get_api_data("#{BASE_URL}#{clean_username}", { 'user.fields' => 'public_metrics,description,created_at,verified,name,pinned_tweet_id' })&.[]('data')
       return nil if data.nil?
 
       # 固定ツイの情報もついでに取るワン
@@ -57,7 +57,7 @@ module XApi
     def fetch_pinned_tweet(tweet_id)
       return nil if tweet_id.nil?
       # 単体ツイート取得時は data 直下にオブジェクトが来る
-      data = get_api_data("#{TWEET_URL}/#{tweet_id}", { 'tweet.fields' => 'lang,text' })
+      data = get_api_data("#{TWEET_URL}/#{tweet_id}", { 'tweet.fields' => 'lang,text' })&.[]('data')
       data.nil? ? nil : { 'lang' => data['lang'], 'text' => data['text'] }
     rescue
       nil
@@ -65,7 +65,7 @@ module XApi
 
     # ツイート詳細を取得するメソッド
     def fetch_tweet_author_id(tweet_id)
-      data = get_api_data("#{TWEET_URL}/#{tweet_id}", { 'tweet.fields' => 'author_id' })
+      data = get_api_data("#{TWEET_URL}/#{tweet_id}", { 'tweet.fields' => 'author_id' })&.[]('data')
       data&.[]('author_id')
     end
 
@@ -80,7 +80,7 @@ module XApi
       end
       return nil unless response.success?
       # X APIは基本 {"data": {...}} か {"data": [...]} で返る
-      JSON.parse(response.body)['data']
+      JSON.parse(response.body)
     rescue
       nil
     end
