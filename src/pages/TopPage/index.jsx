@@ -136,11 +136,11 @@ export const TopPage = () => {
             <span style={{ animation: 'pulse 2s infinite' }}>●</span> DEMO MODE ACTIVE
           </p>
           <p style={{ margin: '0 0 15px 0', fontSize: '0.85em', color: '#aaa', lineHeight: '1.6' }}>
-            デモ用URLをポチッと押すだけで、本物のゾンビ解析データを体験できます！🐾
+            デモ用URLをポチッと押して、RUN BULK ANALYSISを押すだけで、本物のゾンビ解析データを体験できます！🐾
           </p>
           
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            {/* 🌟 クリックで入力されるボタン A */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+            {/* 🌟 Case A：改行バージョン */}
             <div style={{ display: 'flex', gap: '8px' }}>
               <button 
                 onClick={() => setUrl("https://x.com/momonosekaiii/status/2029491573126574351")}
@@ -149,28 +149,29 @@ export const TopPage = () => {
                   background: '#000',
                   color: '#00ff00',
                   border: '1px solid #333',
-                  padding: '10px',
+                  padding: '12px',
                   borderRadius: '6px',
                   fontSize: '0.75em',
                   textAlign: 'left',
                   cursor: 'pointer',
+                  lineHeight: '1.5',
                   transition: 'border-color 0.3s'
                 }}
                 onMouseOver={(e) => e.target.style.borderColor = '#00ff00'}
                 onMouseOut={(e) => e.target.style.borderColor = '#333'}
               >
-                🐕💨 Case A: 73 Replies (トイレットペーパーの芯からみてくる犬："https://x.com/momonosekaiii/status/2029491573126574351")
+                🐕💨 Case A 73 Replies (トイレットペーパーの芯からみてくる犬)<br />
+                <span style={{ fontSize: '0.9em', color: '#666' }}>https://x.com/momonosekaiii/status/2029491573126574351</span>
               </button>
               <button 
                 onClick={() => window.open("https://x.com/momonosekaiii/status/2029491573126574351", '_blank')}
-                style={{ width: '45px', background: '#000', border: '1px solid #333', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                title="Xで本物の投稿を見る"
+                style={{ background: '#000', color: '#00ff00', border: '1px solid #333', padding: '0 15px', borderRadius: '6px', cursor: 'pointer', fontSize: '0.7em', fontWeight: 'bold' }}
               >
-                🔗
+                実際のツイートはこちら！🐾
               </button>
             </div>
 
-            {/* 🌟 クリックで入力されるボタン B */}
+            {/* 🌟 Case B：改行バージョン */}
             <div style={{ display: 'flex', gap: '8px' }}>
               <button 
                 onClick={() => setUrl("https://x.com/inusankoinusan/status/2029180733114466495")}
@@ -179,24 +180,25 @@ export const TopPage = () => {
                   background: '#000',
                   color: '#00ff00',
                   border: '1px solid #333',
-                  padding: '10px',
+                  padding: '12px',
                   borderRadius: '6px',
                   fontSize: '0.75em',
                   textAlign: 'left',
                   cursor: 'pointer',
+                  lineHeight: '1.5',
                   transition: 'border-color 0.3s'
                 }}
                 onMouseOver={(e) => e.target.style.borderColor = '#00ff00'}
                 onMouseOut={(e) => e.target.style.borderColor = '#333'}
               >
-                🐕🌟 Case B: 16 Replies (おもてなし犬："https://x.com/inusankoinusan/status/2029180733114466495")
+                🐕🌟 Case B 16 Replies (おもてなし犬)<br />
+                <span style={{ fontSize: '0.9em', color: '#666' }}>https://x.com/inusankoinusan/status/2029180733114466495</span>
               </button>
               <button 
                 onClick={() => window.open("https://x.com/inusankoinusan/status/2029180733114466495", '_blank')}
-                style={{ width: '45px', background: '#000', border: '1px solid #333', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                title="Xで本物の投稿を見る"
+                style={{ background: '#000', color: '#00ff00', border: '1px solid #333', padding: '0 15px', borderRadius: '6px', cursor: 'pointer', fontSize: '0.7em', fontWeight: 'bold' }}
               >
-                🔗
+                実際のツイートはこちら！🐾
               </button>
             </div>
           </div>
