@@ -125,7 +125,7 @@ export const TopPage = () => {
         textAlign: 'left'
       }}>
         <p style={{ margin: '0 0 10px 0', color: '#00ff00', fontWeight: 'bold' }}>
-          🐾 デモ解析モード稼働中だワン！
+          🐾 デモ解析モード稼働中！🐶
         </p>
         <p style={{ margin: '0 0 10px 0', fontSize: '0.85em', color: '#ccc', lineHeight: '1.6' }}>
           現在はベータ版のため、特定のURLのみ解析可能です。<br />
@@ -287,6 +287,11 @@ export const TopPage = () => {
 
 const styleTag = document.createElement("style");
 styleTag.innerHTML = `
+  html, body {
+    margin: 0;
+    padding: 0;
+    background-color: #1a1a1a; 
+  }
   @keyframes pulse {
     0% { box-shadow: 0 0 5px rgba(255,0,0,0.2); }
     50% { box-shadow: 0 0 15px rgba(255,0,0,0.4); }
