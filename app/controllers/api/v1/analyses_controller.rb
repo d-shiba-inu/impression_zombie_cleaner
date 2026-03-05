@@ -31,7 +31,8 @@ class Api::V1::AnalysesController < ApplicationController
       render json: {
         status: 'success',
         message: "デモ用データの取得に成功したワン！🐾",
-        data: @results
+        data: @results, # 🌟 カンマ忘れないワン！
+        is_demo: ENV['DEMO_MODE'] == 'true' # 🌟 React側にモードを伝えるワン
       }
       return
     end
@@ -58,12 +59,12 @@ class Api::V1::AnalysesController < ApplicationController
     post_author_id = client.fetch_tweet_author_id(tweet_id) # 🌟 まず「投稿主のID」を特定する
     raw_replies = client.fetch_replies(tweet_id, post_author_id) # 🌟 引数に post_author_id を渡す！
 
-    return render json: { status: 'success', data: [] } if raw_replies.empty?
+    return render json: { status: 'success', data: [], is_demo: ENV['DEMO_MODE'] == 'true' } if raw_replies.empty?
 
     puts "DEBUG: Raw Replies Count: #{raw_replies&.size}"
 
     # 🌟 Gemの結果に内訳を付ける処理を共通化
-    @results = apply_latest_logic(@results)
+    @results = apply_latest_logic(raw_replies)
 
     # 🌟 4. 判定結果を DB に一括保存（バルク・インサート）
     # map を使って保存用のデータ配列をスリムに作成します
@@ -73,7 +74,7 @@ class Api::V1::AnalysesController < ApplicationController
         name: res['name'],
         screen_name: res['screen_name'],
         text: res['text'],
-        similarity_rate: res['similarity_rate'],
+        similarity_rate: res['similarity_rate'] || 0,
         is_zombie: res['is_zombie'], # Gemのキー名に合わせる
         verified: res['verified'],
         badge_type: res['badge_type'],
@@ -98,7 +99,8 @@ class Api::V1::AnalysesController < ApplicationController
     render json: {
       status: 'success',
       message: "#{raw_replies.size}件を解析・保存したワン！🐾",
-      data: @results
+      data: @results, # 🌟 カンマ忘れないワン！
+      is_demo: ENV['DEMO_MODE'] == 'true' # 🌟 ここもセットだワン
     }
   end
 
@@ -119,8 +121,9 @@ class Api::V1::AnalysesController < ApplicationController
     # 1. 自作Gemで判定（既存ロジック）
     # 🌟 ここで Detector インスタンスを作る
     detector = ZombieDetector::Detector.new(user_data)
-    zombie_score = ZombieDetector.score(user_data) # detector を使ってスコア計算
-    is_zombie = ZombieDetector.zombie?(user_data) # 判定
+    # 🌟 detector インスタンスからスコアを取るように修正したワン！
+    zombie_score = detector.score
+    is_zombie = zombie_score >= 60 # 判定（60点以上をゾンビとする）
 
     # 2. 🌟 檻（DB）に保存する
     # analysis_params を通さず、ここで明示的にマッピングします

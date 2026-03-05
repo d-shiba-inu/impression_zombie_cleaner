@@ -57,6 +57,8 @@ export const TopPage = () => {
   }, {});
 
   // 1. 【一括判定ボタン】の実装
+  // 🌟 1. モードを記録するステートを追加
+  const [isDemoMode, setIsDemoMode] = useState(false);
   const fetchBulkAnalysis = async () => {
     if (!url) return alert("解析したいポストのURLを入力してほしいワン！🐶");
     
@@ -72,6 +74,8 @@ export const TopPage = () => {
         // ② 🌟 履歴の更新
         // Rails側で一括保存が終わっているので、fetchHistoryを呼ぶだけで
         // 最新の100件が履歴に反映されます！
+        // 🌟 2. バックエンドから届いたモードをセット
+        setIsDemoMode(result.is_demo);
         fetchHistory();
 
       } else {
@@ -110,40 +114,44 @@ export const TopPage = () => {
 
   const visibleReplies = replies.slice(0, displayCount);
 
+  // 🌟 3. JSXの中で「isDemoMode」の時だけ看板を出す！
   return (
     <div style={{ backgroundColor: '#1a1a1a', color: '#fff', minHeight: '100vh', padding: '40px', fontFamily: 'monospace' }}>
       <h1 style={{ textAlign: 'center', color: '#00ff00', textShadow: '0 0 10px #00ff00' }}>🧟‍♂️ ZOMBIE CLEANER</h1>
       
+      {/* 🌟 条件分岐！isDemoMode が true の時だけ表示される */}
       {/* 🌟 ここから デモ案内看板 */}
-      <div style={{
-        maxWidth: '600px', // 入力欄と同じ幅に合わせる
-        margin: '0 auto 30px',
-        backgroundColor: 'rgba(0, 255, 0, 0.1)',
-        border: '1px dashed #00ff00',
-        padding: '20px',
-        borderRadius: '8px',
-        textAlign: 'left'
-      }}>
-        <p style={{ margin: '0 0 10px 0', color: '#00ff00', fontWeight: 'bold' }}>
-          🐾 デモ解析モード稼働中！🐶
-        </p>
-        <p style={{ margin: '0 0 10px 0', fontSize: '0.85em', color: '#ccc', lineHeight: '1.6' }}>
-          現在はベータ版のため、特定のURLのみ解析可能です。<br />
-          下のボックスに貼り付けて「RUN BULK ANALYSIS」を押してください！
-        </p>
-        <code style={{ 
-          display: 'block', 
-          background: '#000', 
-          padding: '10px', 
-          borderRadius: '4px', 
-          color: '#00ff00',
-          fontSize: '0.8em',
-          wordBreak: 'break-all',
-          border: '1px solid #333'
+      {isDemoMode && (
+        <div style={{
+          maxWidth: '600px', // 入力欄と同じ幅に合わせる
+          margin: '0 auto 30px',
+          backgroundColor: 'rgba(0, 255, 0, 0.1)',
+          border: '1px dashed #00ff00',
+          padding: '20px',
+          borderRadius: '8px',
+          textAlign: 'left'
         }}>
-          https://x.com/minogashi205/status/2025474554320314713
-        </code>
-      </div>
+          <p style={{ margin: '0 0 10px 0', color: '#00ff00', fontWeight: 'bold' }}>
+            🐾 デモ解析モード稼働中！🐶
+          </p>
+          <p style={{ margin: '0 0 10px 0', fontSize: '0.85em', color: '#ccc', lineHeight: '1.6' }}>
+            現在はベータ版のため、特定のURLのみ解析可能です。<br />
+            下のボックスに貼り付けて「RUN BULK ANALYSIS」を押してください！
+          </p>
+          <code style={{ 
+            display: 'block', 
+            background: '#000', 
+            padding: '10px', 
+            borderRadius: '4px', 
+            color: '#00ff00',
+            fontSize: '0.8em',
+            wordBreak: 'break-all',
+            border: '1px solid #333'
+          }}>
+            https://x.com/minogashi205/status/2025474554320314713
+          </code>
+        </div>
+      )}
 
       {/* 入力エリア */}
       <div style={{ maxWidth: '600px', margin: '0 auto 40px', textAlign: 'center' }}>
