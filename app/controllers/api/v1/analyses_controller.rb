@@ -9,10 +9,14 @@ class Api::V1::AnalysesController < ApplicationController
     # 例: https://x.com/username/status/123456789 -> 123456789
     tweet_url = params[:url]
     # 🌟 デモ用の特定のURL
-    demo_id = "2025474554320314713"  # イケメンマッチョ犬ツイートのID
+    demo_urls = [
+      "https://x.com/momonosekaiii/status/2029491573126574351",
+      "https://x.com/inusankoinusan/status/2029180733114466495"
+    ]        # "2025474554320314713" イケメンマッチョ犬ツイートのID
     
     # A. デモモードかつ、知らないURLが来たらブロックする
-    if ENV['DEMO_MODE'] == 'true' && !tweet_url.include?(demo_id)
+    is_demo = ENV['DEMO_MODE'] == 'true'
+    if is_demo && !demo_urls.any? { |url| tweet_url.include?(url) }
       render json: { 
         status: 'error', 
         message: '現在はデモ期間中につき、特定のURLのみ解析可能です。履歴から過去の解析結果を見るか、デモ用URLを試してほしいワン！🐾' 
@@ -21,8 +25,10 @@ class Api::V1::AnalysesController < ApplicationController
     end
 
     # B. デモ用URLが来たら、APIを叩かずにDBから取得して返す
-    # 🌟 Analysisモデルから、このURLに一致するデータを取得
-    stored_analyses = Analysis.where("url LIKE ?", "%#{demo_id}%").order(created_at: :desc)
+    if is_demo
+    # URLが完全一致するか、クエリパラメータを除いた部分で一致するものを探す
+    base_url = tweet_url.split('?').first
+    stored_analyses = Analysis.where("url LIKE ?", "%#{base_url}%").order(created_at: :desc)
 
     if stored_analyses.any?
       # 🚀 DBのデータを、魔法の箱(apply_latest_logic)で再計算！
@@ -36,6 +42,7 @@ class Api::V1::AnalysesController < ApplicationController
       }
       return
     end
+  end
 
     if tweet_url.blank?
       render json: { status: 'error', message: 'URLが空だワン！🐶' }, status: :bad_request
@@ -120,7 +127,7 @@ class Api::V1::AnalysesController < ApplicationController
         puts "🔥 DB保存エラー発生だワン！！: #{e.message}"
       end
     end
-    
+
     # 🌟 Rails 6以降の爆速保存メソッド
     Analysis.insert_all(save_data) if save_data.any?
 
@@ -195,14 +202,15 @@ class Api::V1::AnalysesController < ApplicationController
     
     # 1. データの取得
     if ENV['DEMO_MODE'] == 'true'
-      query = Analysis.where("url LIKE ?", "%#{demo_id}%")
+      # momonosekaiii と inusankoinusan の両方を含むデータを取得
+      query = Analysis.where("url LIKE ? OR url LIKE ?", "%2029491573126574351%", "%2029180733114466495%")
     else
       query = Analysis.all
     end
 
     # 2. 🚀 取得したデータを「魔法の箱」で最新スコアに書き換える
     # これをやらないと、履歴画面で古い点数が出る
-    @analyses = apply_latest_logic(query.order(created_at: :desc).limit(50).map(&:attributes))
+    @analyses = apply_latest_logic(query.order(created_at: :desc).limit(100).map(&:attributes))
     
     render json: { status: 'success', data: @analyses }
   end
