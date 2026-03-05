@@ -114,6 +114,37 @@ export const TopPage = () => {
     <div style={{ backgroundColor: '#1a1a1a', color: '#fff', minHeight: '100vh', padding: '40px', fontFamily: 'monospace' }}>
       <h1 style={{ textAlign: 'center', color: '#00ff00', textShadow: '0 0 10px #00ff00' }}>🧟‍♂️ ZOMBIE CLEANER</h1>
       
+      {/* 🌟 ここから デモ案内看板 */}
+      <div style={{
+        maxWidth: '600px', // 入力欄と同じ幅に合わせる
+        margin: '0 auto 30px',
+        backgroundColor: 'rgba(0, 255, 0, 0.1)',
+        border: '1px dashed #00ff00',
+        padding: '20px',
+        borderRadius: '8px',
+        textAlign: 'left'
+      }}>
+        <p style={{ margin: '0 0 10px 0', color: '#00ff00', fontWeight: 'bold' }}>
+          🐾 デモ解析モード稼働中だワン！
+        </p>
+        <p style={{ margin: '0 0 10px 0', fontSize: '0.85em', color: '#ccc', lineHeight: '1.6' }}>
+          現在はベータ版のため、特定のURLのみ解析可能です。<br />
+          下のボックスに貼り付けて「RUN BULK ANALYSIS」を押してください！
+        </p>
+        <code style={{ 
+          display: 'block', 
+          background: '#000', 
+          padding: '10px', 
+          borderRadius: '4px', 
+          color: '#00ff00',
+          fontSize: '0.8em',
+          wordBreak: 'break-all',
+          border: '1px solid #333'
+        }}>
+          https://x.com/minogashi205/status/2025474554320314713
+        </code>
+      </div>
+
       {/* 入力エリア */}
       <div style={{ maxWidth: '600px', margin: '0 auto 40px', textAlign: 'center' }}>
         <input 
