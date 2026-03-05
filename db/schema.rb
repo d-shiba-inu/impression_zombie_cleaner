@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_02_26_063650) do
+ActiveRecord::Schema[7.1].define(version: 2026_03_05_114138) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -34,6 +34,15 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_26_063650) do
     t.integer "statuses_count"
     t.datetime "user_created_at"
     t.json "breakdown"
+    t.json "raw_user_data"
+    t.string "pinned_tweet_id"
+    t.text "pinned_tweet_text"
+    t.string "pinned_tweet_lang"
+    t.string "description_lang"
+    t.string "location"
+    t.string "profile_banner_url"
+    t.integer "listed_count"
+    t.index ["pinned_tweet_id"], name: "index_analyses_on_pinned_tweet_id"
     t.index ["url"], name: "index_analyses_on_url"
   end
 
