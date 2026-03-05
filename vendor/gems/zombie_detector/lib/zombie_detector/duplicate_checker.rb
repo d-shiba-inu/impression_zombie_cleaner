@@ -21,14 +21,18 @@ module ZombieDetector
           sim = calculate_jaccard(current_set, target_set)
           max_sim = sim if sim > max_sim
         end
+
+        # 🌟 文字数による勾配補正
+        text_length = reply['text'].to_s.length
+        length_multiplier = [text_length / 30.0, 1.0].min # 30文字で 1.0 に到達
         
-        # 類似度(0.0~1.0)を50点満点に換算
-        jaccard_points = (max_sim * 50).to_i
+        # 類似度(0.0~1.0)× 50点 × 文字数係数で50点満点に換算
+        jaccard_points = (max_sim * 50 * length_multiplier).to_i
 
         # --- 条件2〜4: 単体判定スコア (Detectorから取得) ---
-        # 🌟 先ほど修正した Detector を呼び出して 50点満点のスコアをもらいます
+        # 🌟 Detector を呼び出して 50点満点のスコアをもらいます
         detector = Detector.new(reply)
-        base_points = detector.score
+        base_points = detector.score  # 最大100点
 
         # 合計 150点満点
         total_score = jaccard_points + base_points
@@ -36,7 +40,7 @@ module ZombieDetector
         # 🌟 RailsのコントローラーやReactが期待するキー名でデータを更新
         reply['similarity_rate'] = max_sim.round(3) # 0.854 のような形式
         reply['score'] = total_score                # 85 のような形式
-        reply['is_zombie_copy'] = total_score >= 80 #  合計点が 80点以上ならゾンビ認定
+        reply['is_zombie_copy'] = total_score >= 60 #  合計点が 60点以上ならゾンビ認定
 
         # 似ていない（オリジナル）投稿なら、以降の比較対象として記憶に追加
         # 類似度が低い(40%未満)かつ、空文字でない場合のみ保存

@@ -44,14 +44,18 @@ module ZombieDetector
         days_active = [(Time.now - created_at) / 86400, 1].max
         tweets_per_day = count.to_f / days_active
 
-        # 1日平均 50投稿以上で 15点、100投稿以上で 30点（人間離れ判定）
-        if tweets_per_day > 100
-          30
-        elsif tweets_per_day > 50
-          15
-        else
-          0
-        end
+        # 🌟 若さ係数
+        age_multiplier = if days_active < 90
+                           1.5
+                         else
+                           1.0
+                         end
+
+        # 🌟 勾配計算 (100件/日で30点になるように 0.3 を掛ける)
+        raw_score = (tweets_per_day * 0.3 * age_multiplier).to_i
+
+        # 最大30点に抑える（配点分布維持）
+        [raw_score, 30].min
       rescue
         0
       end
