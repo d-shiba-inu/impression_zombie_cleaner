@@ -25,14 +25,9 @@ class Api::V1::AnalysesController < ApplicationController
     stored_analyses = Analysis.where("url LIKE ?", "%#{demo_id}%").order(created_at: :desc)
 
     if stored_analyses.any?
-      # Reactが期待する形式（@resultsと同じ形）に変換
-      @results = stored_analyses.map do |r|
-        # DBのデータをハッシュに変換し、Gemのキー名に合わせる
-        r.attributes.merge({
-          'is_zombie_copy' => r.is_zombie,
-          'breakdown' => r.breakdown # JSON型なのでそのままハッシュとして扱える
-        })
-      end
+      # 🚀 DBのデータを、魔法の箱(apply_latest_logic)で再計算！
+      @results = apply_latest_logic(stored_analyses.map(&:attributes))
+
       render json: {
         status: 'success',
         message: "デモ用データの取得に成功したワン！🐾",
@@ -67,15 +62,8 @@ class Api::V1::AnalysesController < ApplicationController
 
     puts "DEBUG: Raw Replies Count: #{raw_replies&.size}"
 
-    # 3. 自作 Gem で判定(言語判定や密度判定のロジックも走る)
-    @results = ZombieDetector.detect_duplicates(raw_replies)
-
-    # 🌟 各リプライに「内訳」を付け加える
-    @results.each do |res|
-      # GemのDetectorクラスを呼び出して、詳細な内訳を取得
-      detector = ZombieDetector::Detector.new(res)
-      res['breakdown'] = detector.breakdown[:details] # { age: 10, lang: 30 ... } が入る
-    end
+    # 🌟 Gemの結果に内訳を付ける処理を共通化
+    @results = apply_latest_logic(@results)
 
     # 🌟 4. 判定結果を DB に一括保存（バルク・インサート）
     # map を使って保存用のデータ配列をスリムに作成します
@@ -86,7 +74,7 @@ class Api::V1::AnalysesController < ApplicationController
         screen_name: res['screen_name'],
         text: res['text'],
         similarity_rate: res['similarity_rate'],
-        is_zombie: res['is_zombie_copy'], # Gemのキー名に合わせる
+        is_zombie: res['is_zombie'], # Gemのキー名に合わせる
         verified: res['verified'],
         badge_type: res['badge_type'],
         description: res['description'],
@@ -171,19 +159,39 @@ class Api::V1::AnalysesController < ApplicationController
 
   # 履歴取得用のアクション
   def history
-    # 🌟 デモモードかどうかで取得するデータを変えるワン！
-    if ENV['DEMO_MODE'] == 'true'
-      # デモ用のIDが含まれるデータだけを表示（＝他の人のスキャンが混ざらない）
-      demo_id = "2025474554320314713"
-      @analyses = Analysis.where("url LIKE ?", "%#{demo_id}%").order(created_at: :desc).limit(50)
-    else
-      # 通常モードなら全部出す
-      @analyses = Analysis.order(created_at: :desc).limit(50)
-    end
+    demo_id = "2025474554320314713"
     
-    render json: {
-      status: 'success',
-      data: @analyses
-    }
+    # 1. データの取得
+    if ENV['DEMO_MODE'] == 'true'
+      query = Analysis.where("url LIKE ?", "%#{demo_id}%")
+    else
+      query = Analysis.all
+    end
+
+    # 2. 🚀 取得したデータを「魔法の箱」で最新スコアに書き換える
+    # これをやらないと、履歴画面で古い点数が出る
+    @analyses = apply_latest_logic(query.order(created_at: :desc).limit(50).map(&:attributes))
+    
+    render json: { status: 'success', data: @analyses }
+  end
+
+  private
+
+  # 🌟 Gemの計算をやり直して内訳をセットする共通メソッド
+  # これを private の下に置く
+  def apply_latest_logic(data_hashes)
+    return [] if data_hashes.nil? || data_hashes.empty?
+    
+    # 1. Gemを呼び出して、現在のコード（勾配ロジック）で再計算！
+    # DuplicateCheckerの中で score や is_zombie が上書きされる
+    checker = ZombieDetector::DuplicateChecker.new(data_hashes)
+    results = checker.analyze
+
+    # 2. 各データに対して、Detectorで詳しい内訳(breakdown)を出し直す
+    results.map do |res|
+      detector = ZombieDetector::Detector.new(res)
+      res['breakdown'] = detector.breakdown[:details]
+      res
+    end
   end
 end
