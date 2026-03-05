@@ -171,8 +171,15 @@ class Api::V1::AnalysesController < ApplicationController
 
   # 履歴取得用のアクション
   def history
-    # 🌟 最新の 50 件を、新しい順（desc）に取得
-    @analyses = Analysis.order(created_at: :desc).limit(50)
+    # 🌟 デモモードかどうかで取得するデータを変えるワン！
+    if ENV['DEMO_MODE'] == 'true'
+      # デモ用のIDが含まれるデータだけを表示（＝他の人のスキャンが混ざらない）
+      demo_id = "2025474554320314713"
+      @analyses = Analysis.where("url LIKE ?", "%#{demo_id}%").order(created_at: :desc).limit(50)
+    else
+      # 通常モードなら全部出す
+      @analyses = Analysis.order(created_at: :desc).limit(50)
+    end
     
     render json: {
       status: 'success',
