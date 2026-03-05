@@ -58,7 +58,7 @@ export const TopPage = () => {
 
   // 1. 【一括判定ボタン】の実装
   // 🌟 1. モードを記録するステートを追加
-  const [isDemoMode, setIsDemoMode] = useState(false);
+  const [isDemoMode, setIsDemoMode] = useState(true);
   const fetchBulkAnalysis = async () => {
     if (!url) return alert("解析したいポストのURLを入力してほしいワン！🐶");
     
@@ -136,49 +136,69 @@ export const TopPage = () => {
             <span style={{ animation: 'pulse 2s infinite' }}>●</span> DEMO MODE ACTIVE
           </p>
           <p style={{ margin: '0 0 15px 0', fontSize: '0.85em', color: '#aaa', lineHeight: '1.6' }}>
-            デモ用URLをポチッと押すだけで、本物のゾンビ解析データを体験できるワン！🐾
+            デモ用URLをポチッと押すだけで、本物のゾンビ解析データを体験できます！🐾
           </p>
           
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             {/* 🌟 クリックで入力されるボタン A */}
-            <button 
-              onClick={() => setUrl("https://x.com/momonosekaiii/status/2029491573126574351")}
-              style={{
-                background: '#000',
-                color: '#00ff00',
-                border: '1px solid #333',
-                padding: '10px',
-                borderRadius: '6px',
-                fontSize: '0.75em',
-                textAlign: 'left',
-                cursor: 'pointer',
-                transition: 'border-color 0.3s'
-              }}
-              onMouseOver={(e) => e.target.style.borderColor = '#00ff00'}
-              onMouseOut={(e) => e.target.style.borderColor = '#333'}
-            >
-              🚀 Case A: 73 Replies (High Traffic)
-            </button>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button 
+                onClick={() => setUrl("https://x.com/momonosekaiii/status/2029491573126574351")}
+                style={{
+                  flex: 1,
+                  background: '#000',
+                  color: '#00ff00',
+                  border: '1px solid #333',
+                  padding: '10px',
+                  borderRadius: '6px',
+                  fontSize: '0.75em',
+                  textAlign: 'left',
+                  cursor: 'pointer',
+                  transition: 'border-color 0.3s'
+                }}
+                onMouseOver={(e) => e.target.style.borderColor = '#00ff00'}
+                onMouseOut={(e) => e.target.style.borderColor = '#333'}
+              >
+                🐕💨 Case A: 73 Replies (トイレットペーパーの芯からみてくる犬："https://x.com/momonosekaiii/status/2029491573126574351")
+              </button>
+              <button 
+                onClick={() => window.open("https://x.com/momonosekaiii/status/2029491573126574351", '_blank')}
+                style={{ width: '45px', background: '#000', border: '1px solid #333', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                title="Xで本物の投稿を見る"
+              >
+                🔗
+              </button>
+            </div>
 
             {/* 🌟 クリックで入力されるボタン B */}
-            <button 
-              onClick={() => setUrl("https://x.com/inusankoinusan/status/2029180733114466495")}
-              style={{
-                background: '#000',
-                color: '#00ff00',
-                border: '1px solid #333',
-                padding: '10px',
-                borderRadius: '6px',
-                fontSize: '0.75em',
-                textAlign: 'left',
-                cursor: 'pointer',
-                transition: 'border-color 0.3s'
-              }}
-              onMouseOver={(e) => e.target.style.borderColor = '#00ff00'}
-              onMouseOut={(e) => e.target.style.borderColor = '#333'}
-            >
-              🐜 Case B: 16 Replies (Sample)
-            </button>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button 
+                onClick={() => setUrl("https://x.com/inusankoinusan/status/2029180733114466495")}
+                style={{
+                  flex: 1,
+                  background: '#000',
+                  color: '#00ff00',
+                  border: '1px solid #333',
+                  padding: '10px',
+                  borderRadius: '6px',
+                  fontSize: '0.75em',
+                  textAlign: 'left',
+                  cursor: 'pointer',
+                  transition: 'border-color 0.3s'
+                }}
+                onMouseOver={(e) => e.target.style.borderColor = '#00ff00'}
+                onMouseOut={(e) => e.target.style.borderColor = '#333'}
+              >
+                🐕🌟 Case B: 16 Replies (おもてなし犬："https://x.com/inusankoinusan/status/2029180733114466495")
+              </button>
+              <button 
+                onClick={() => window.open("https://x.com/inusankoinusan/status/2029180733114466495", '_blank')}
+                style={{ width: '45px', background: '#000', border: '1px solid #333', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                title="Xで本物の投稿を見る"
+              >
+                🔗
+              </button>
+            </div>
           </div>
         </div>
       )}
