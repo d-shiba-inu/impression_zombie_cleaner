@@ -59,6 +59,8 @@ class Api::V1::AnalysesController < ApplicationController
     post_author_id = client.fetch_tweet_author_id(tweet_id) # 🌟 まず「投稿主のID」を特定する
     raw_replies = client.fetch_replies(tweet_id, post_author_id) # 🌟 引数に post_author_id を渡す！
 
+    puts "DEBUG: API returned #{raw_replies&.size || 0} replies after filtering author."
+    
     if raw_replies.nil? || raw_replies.empty?
       # 🌟 何も取れなかった時は、ちゃんとメッセージを返すワン！
       render json: { 
@@ -101,6 +103,22 @@ class Api::V1::AnalysesController < ApplicationController
         created_at: Time.current,
         updated_at: Time.current
       }
+    end
+    
+    # 🌟 保存直前にデータを 1 件だけ手動でテスト保存してみるワン！
+    if save_data.any?
+      test_record = Analysis.new(save_data.first)
+      unless test_record.valid?
+        puts "❌ バリデーションエラーだワン！: #{test_record.errors.full_messages}"
+      end
+      
+      begin
+        # 実際に DB に書いてみて、エラーをコンソールに吐き出すワン
+        Analysis.create!(save_data.first)
+        puts "✅ 1件目のテスト保存に成功したワン！"
+      rescue => e
+        puts "🔥 DB保存エラー発生だワン！！: #{e.message}"
+      end
     end
     
     # 🌟 Rails 6以降の爆速保存メソッド
