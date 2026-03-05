@@ -35,18 +35,16 @@ module XApi
       }
     
       body = get_api_data(SEARCH_URL, params)
-      return [] if body.nil? || !body.is_a?(Hash) || body['data'].nil?
+      return [] if body.nil? || !body.is_a?(Hash) || !body.key?('data')
 
       # Expansionからユーザー情報を引く
       users = body.dig('includes', 'users')&.index_by { |u| u['id'] } || {}
       
-      body['data'].map do |tweet|
-        author_id = tweet['author_id']
-        
-        # 🌟 【判定】投稿主本人のリプライなら除外（スキップ）
-        next if author_id == post_author_id
+      Array(body['data']).map do |tweet|
+        # 🌟 【判定】投稿主本人のリプライなら除外
+        next if tweet['author_id'] == post_author_id
 
-        user = users[author_id] || {}
+        user = users[tweet['author_id']] || {}
 
         # 🌟 ユーザーごとに固定ツイート情報を取得（API回数に注意！）
         pinned_info = fetch_pinned_tweet(user['pinned_tweet_id'])
