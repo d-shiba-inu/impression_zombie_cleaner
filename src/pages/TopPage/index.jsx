@@ -117,7 +117,10 @@ export const TopPage = () => {
   // 🌟 3. JSXの中で「isDemoMode」の時だけ看板を出す！
   return (
     <div style={{ backgroundColor: '#1a1a1a', color: '#fff', minHeight: '100vh', padding: '40px', fontFamily: 'monospace' }}>
-      <h1 style={{ textAlign: 'center', color: '#00ff00', textShadow: '0 0 10px #00ff00' }}>🧟‍♂️ ZOMBIE BUSTER</h1>
+      {/* 🌟 タイトルの変更だワン！🧟 IMPRESSION ZOMBIE CLEANER */}
+      <h1 style={{ textAlign: 'center', color: '#00ff00', textShadow: '0 0 10px #00ff00', fontSize: '2.5em', fontWeight: '900' }}>
+        🧟 IMPRESSION ZOMBIE CLEANER
+      </h1>
       
       {/* 🌟 条件分岐！isDemoMode が true の時だけ表示される */}
       {/* 🌟 ここから デモ案内看板 */}
@@ -140,7 +143,7 @@ export const TopPage = () => {
           </p>
           
           <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-            {/* 🌟 Case A：改行バージョン */}
+            {/* 🌟 Case A：改行バージョン + ホバー対応外部リンク */}
             <div style={{ display: 'flex', gap: '8px' }}>
               <button 
                 onClick={() => setUrl("https://x.com/momonosekaiii/status/2029491573126574351")}
@@ -163,15 +166,28 @@ export const TopPage = () => {
                 🐕💨 Case A 73 Replies (トイレットペーパーの芯からみてくる犬)<br />
                 <span style={{ fontSize: '0.9em', color: '#666' }}>https://x.com/momonosekaiii/status/2029491573126574351</span>
               </button>
+              {/* 🌟 ホバーで緑枠になる外部リンクボタン */}
               <button 
                 onClick={() => window.open("https://x.com/momonosekaiii/status/2029491573126574351", '_blank')}
-                style={{ background: '#000', color: '#00ff00', border: '1px solid #333', padding: '0 15px', borderRadius: '6px', cursor: 'pointer', fontSize: '0.7em', fontWeight: 'bold' }}
+                style={{
+                  background: '#000',
+                  color: '#00ff00',
+                  border: '1px solid #333',
+                  padding: '0 15px',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '0.7em',
+                  fontWeight: 'bold',
+                  transition: 'border-color 0.3s'
+                }}
+                onMouseOver={(e) => e.target.style.borderColor = '#00ff00'}
+                onMouseOut={(e) => e.target.style.borderColor = '#333'}
               >
                 実際のツイートはこちら！🐾
               </button>
             </div>
 
-            {/* 🌟 Case B：改行バージョン */}
+            {/* 🌟 Case B：改行バージョン + ホバー対応外部リンク */}
             <div style={{ display: 'flex', gap: '8px' }}>
               <button 
                 onClick={() => setUrl("https://x.com/inusankoinusan/status/2029180733114466495")}
@@ -194,9 +210,22 @@ export const TopPage = () => {
                 🐕🌟 Case B 16 Replies (おもてなし犬)<br />
                 <span style={{ fontSize: '0.9em', color: '#666' }}>https://x.com/inusankoinusan/status/2029180733114466495</span>
               </button>
+              {/* 🌟 ホバーで緑枠になる外部リンクボタン */}
               <button 
                 onClick={() => window.open("https://x.com/inusankoinusan/status/2029180733114466495", '_blank')}
-                style={{ background: '#000', color: '#00ff00', border: '1px solid #333', padding: '0 15px', borderRadius: '6px', cursor: 'pointer', fontSize: '0.7em', fontWeight: 'bold' }}
+                style={{
+                  background: '#000',
+                  color: '#00ff00',
+                  border: '1px solid #333',
+                  padding: '0 15px',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '0.7em',
+                  fontWeight: 'bold',
+                  transition: 'border-color 0.3s'
+                }}
+                onMouseOver={(e) => e.target.style.borderColor = '#00ff00'}
+                onMouseOut={(e) => e.target.style.borderColor = '#333'}
               >
                 実際のツイートはこちら！🐾
               </button>
