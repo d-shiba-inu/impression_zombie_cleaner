@@ -1,4 +1,5 @@
 # 📊ER図
+#### ✅X APIで取得したデータの保存のみになります。</br>✅保存したデータを利用して解析します。
 ```mermaid
 erDiagram
     ANALYSES {
