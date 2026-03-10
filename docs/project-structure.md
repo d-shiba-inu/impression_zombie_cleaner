@@ -17,7 +17,7 @@ flowchart TD
     Root ---> Pages
 
     %% Pagesから各ページへの派生
-    Pages ===> Top["🏠 TopPage<br>(URL入力・解析結果・履歴の統合SPA)"]
+    Pages ===> Top["🏠 TopPage<br>(URL入力・解析結果・履歴の統合)"]
     Pages -.-> Login["🔑 Login<br>(ログイン)"]
     Pages -.-> Signup["📝 Signup<br>(新規登録)"]
     Pages -.-> Mypage["👤 Mypage<br>(マイページ)"]

@@ -99,7 +99,6 @@ Enhancement of Features
    - [x] Reactの表示確認  
 
 - [x] ⭐️ 履歴の整理(MainのSTEP5)  
-- [x] ⭐️ UI/UXの整備  
-- [x] ⭐️ 取得件数の解決  
+- [x] ⭐️ UI/UXの整備   
 
 
