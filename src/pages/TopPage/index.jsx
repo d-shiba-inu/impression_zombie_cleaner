@@ -30,6 +30,9 @@ export const TopPage = () => {
   const [filter, setFilter] = useState('all'); // 'all', 'zombie', 'human'
   const [showHistory, setShowHistory] = useState(true);
 
+  // 🌟 【追加】使い方ガイドを表示するためのステート
+  const [showGuide, setShowGuide] = useState(false);
+
   // 🌟 ページ読み込み時に実行される魔法
   useEffect(() => {
     fetchHistory();
@@ -135,9 +138,33 @@ export const TopPage = () => {
           textAlign: 'left',
           boxShadow: '0 0 20px rgba(0, 255, 0, 0.1)'
         }}>
-          <p style={{ margin: '0 0 10px 0', color: '#00ff00', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ animation: 'pulse 2s infinite' }}>●</span> DEMO MODE ACTIVE
-          </p>
+          {/* 🌟 使い方ガイド（ツールチップ）の実装 */}
+          <div 
+            style={{ position: 'relative', display: 'inline-block' }}
+            onMouseEnter={() => setShowGuide(true)}
+            onMouseLeave={() => setShowGuide(false)}
+          >
+            <p style={{ margin: '0 0 10px 0', color: '#00ff00', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'help' }}>
+              <span style={{ animation: 'pulse 2s infinite' }}>●</span> DEMO MODE ACTIVE ℹ️
+            </p>
+            
+            {/* 🌟 カーソルを合わせた時に表示される使い方パネル */}
+            {showGuide && (
+              <div style={{
+                position: 'absolute', top: '100%', left: '0', marginTop: '10px', width: '320px',
+                background: '#000', border: '1px solid #00ff00', borderRadius: '8px', padding: '15px',
+                zIndex: 10, boxShadow: '0 5px 15px rgba(0,255,0,0.3)', color: '#fff'
+              }}>
+                <p style={{ margin: '0 0 10px 0', fontWeight: 'bold', color: '#00ff00', borderBottom: '1px solid #333', paddingBottom: '5px' }}>📖 アプリの使い方</p>
+                <ol style={{ margin: 0, paddingLeft: '20px', fontSize: '0.85em', lineHeight: '1.6', color: '#aaa' }}>
+                  <li>下の <strong>Case A</strong> または <strong>Case B</strong> のボタンをクリックしてデモURLをセット。</li>
+                  <li>入力欄の下にある <strong>「リプライ欄一括解析」</strong> ボタンをクリック！</li>
+                  <li>一瞬で本物のゾンビ解析データが表示されます🐾</li>
+                </ol>
+              </div>
+            )}
+          </div>
+
           <p style={{ margin: '0 0 15px 0', fontSize: '0.85em', color: '#aaa', lineHeight: '1.6' }}>
             デモ用URLをポチッと押して、RUN BULK ANALYSISを押すだけで、本物のゾンビ解析データを体験できます！🐾
           </p>
@@ -235,29 +262,51 @@ export const TopPage = () => {
       )}
 
       {/* 入力エリア */}
-      <div style={{ maxWidth: '600px', margin: '0 auto 40px', textAlign: 'center' }}>
+      {/* 🌟 改善された入力・ボタンエリア */}
+      <div style={{ maxWidth: '600px', margin: '0 auto 40px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
         <input 
           type="text" 
           value={url} 
           onChange={(e) => setUrl(e.target.value)} 
-          placeholder="解析するURLを入力..."
-          style={{ width: '70%', padding: '12px', background: '#333', color: '#fff', border: '1px solid #00ff00', borderRadius: '4px' }}
+          placeholder="解析するX(Twitter)のURLを入力..."
+          style={{ width: '100%', padding: '16px', background: '#222', color: '#fff', border: '2px solid #00ff00', borderRadius: '8px', fontSize: '1.1em', boxSizing: 'border-box' }}
         />
-        <button 
-          onClick={handleAnalyze} 
-          disabled={loading}
-          style={{ padding: '12px 24px', marginLeft: '10px', background: '#00ff00', color: '#000', fontWeight: 'bold', cursor: 'pointer', border: 'none', borderRadius: '4px' }}
-        >
-          {loading ? 'SCANNING...' : 'SCAN URL'}
-        </button>
+        
+        {/* ボタンを縦に並べるコンテナ */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          
+          {/* ボタン1: リプライ欄一括解析 (メインアクションなので目立たせる) */}
+          {/* 🌟 一括解析ボタン */}
+          <button 
+            onClick={fetchBulkAnalysis}
+            disabled={loading}
+            style={{ padding: '10px', background: '#00ff00', color: '#000', border: 'none', borderRadius: '8px', cursor: 'pointer', transition: 'opacity 0.2s', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', opacity: loading ? 0.7 : 1 }}
+          >
+            <span style={{ fontSize: '1.05em', fontWeight: '900' }}>
+              {loading ? 'ANALYZING...' : '👥 リプライ欄一括解析 (RUN BULK ANALYSIS)'}
+            </span>
+            <span style={{ fontSize: '0.75em', opacity: 0.8, fontWeight: 'bold' }}>
+              対象ツイートのURLを入力し、ぶら下がるリプライ最大100件を解析します
+            </span>
+          </button>
 
-        {/* 🌟 一括解析ボタン */}
-        <button 
-          onClick={fetchBulkAnalysis}
-          style={{ marginTop: '10px', padding: '12px 16px', width: '100%', background: 'transparent', color: '#00ff00', border: '2px solid #00ff00', cursor: 'pointer', borderRadius: '4px', fontWeight: 'bold' }}
-        >
-          {loading ? 'ANALYZING...' : 'RUN BULK ANALYSIS (MAX 100 REPLIES)'}
-        </button>
+          {/* ボタン2: 個人アカウント解析 (サブアクションとしてデザインを分ける) */}
+          <button 
+            onClick={handleAnalyze} 
+            disabled={loading}
+            style={{ padding: '8px', background: '#000', color: '#00ff00', border: '1px solid #00ff00', borderRadius: '8px', cursor: 'pointer', transition: 'background 0.2s', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}
+            onMouseOver={(e) => e.currentTarget.style.background = '#0a2a0a'}
+            onMouseOut={(e) => e.currentTarget.style.background = '#000'}
+          >
+            <span style={{ fontSize: '0.95em', fontWeight: 'bold' }}>
+              {loading ? 'SCANNING...' : '👤 個人アカウント解析 (SCAN URL)'}
+            </span>
+            <span style={{ fontSize: '0.7em', color: '#aaa' }}>
+              ユーザーのプロフィールURLを入力し、そのアカウント1件のみを判定します
+            </span>
+          </button>
+          
+        </div>
       </div>
 
       {/* ... (以下、解析結果表示と履歴表示のコードは以前と同じだワン！) */}
