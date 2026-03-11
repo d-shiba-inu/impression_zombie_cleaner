@@ -120,7 +120,7 @@ export const TopPage = () => {
   // 🌟 3. JSXの中で「isDemoMode」の時だけ看板を出す！
   return (
     <div style={{ backgroundColor: '#1a1a1a', color: '#fff', minHeight: '100vh', padding: '40px', fontFamily: 'monospace' }}>
-      {/* 🌟 タイトルの変更だワン！🧟 IMPRESSION ZOMBIE CLEANER */}
+      {/* 🌟 タイトルの変更🧟 IMPRESSION ZOMBIE CLEANER */}
       <h1 style={{ textAlign: 'center', color: '#00ff00', textShadow: '0 0 10px #00ff00', fontSize: '2.5em', fontWeight: '900' }}>
         🧟 IMPRESSION ZOMBIE CLEANER
       </h1>
@@ -262,7 +262,7 @@ export const TopPage = () => {
       )}
 
       {/* 入力エリア */}
-      {/* 🌟 改善された入力・ボタンエリア */}
+      {/* 🌟 入力・ボタンエリア */}
       <div style={{ maxWidth: '600px', margin: '0 auto 40px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
         <input 
           type="text" 
@@ -291,21 +291,22 @@ export const TopPage = () => {
           </button>
 
           {/* ボタン2: 個人アカウント解析 (サブアクションとしてデザインを分ける) */}
-          <button 
-            onClick={handleAnalyze} 
-            disabled={loading}
-            style={{ padding: '8px', background: '#000', color: '#00ff00', border: '1px solid #00ff00', borderRadius: '8px', cursor: 'pointer', transition: 'background 0.2s', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}
-            onMouseOver={(e) => e.currentTarget.style.background = '#0a2a0a'}
-            onMouseOut={(e) => e.currentTarget.style.background = '#000'}
-          >
-            <span style={{ fontSize: '0.95em', fontWeight: 'bold' }}>
-              {loading ? 'SCANNING...' : '👤 個人アカウント解析 (SCAN URL)'}
-            </span>
-            <span style={{ fontSize: '0.7em', color: '#aaa' }}>
-              ユーザーのプロフィールURLを入力し、そのアカウント1件のみを判定します
-            </span>
-          </button>
-          
+          {!isDemoMode && (
+            <button 
+              onClick={handleAnalyze} 
+              disabled={loading}
+              style={{ padding: '8px', background: '#000', color: '#00ff00', border: '1px solid #00ff00', borderRadius: '8px', cursor: 'pointer', transition: 'background 0.2s', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px' }}
+              onMouseOver={(e) => e.currentTarget.style.background = '#0a2a0a'}
+              onMouseOut={(e) => e.currentTarget.style.background = '#000'}
+            >
+              <span style={{ fontSize: '0.95em', fontWeight: 'bold' }}>
+                {loading ? 'SCANNING...' : '👤 個人アカウント解析 (SCAN URL)'}
+              </span>
+              <span style={{ fontSize: '0.7em', color: '#aaa' }}>
+                ユーザーのプロフィールURLを入力し、そのアカウント1件のみを判定します
+              </span>
+            </button>
+          )}
         </div>
       </div>
 
