@@ -17,14 +17,7 @@ module ZombieDetector
         lang: check_lang_mismatch        # 🌟 言語ミスマッチ (最大40点)
       }
 
-      # 🌟 第1関門：青バッジのライン
-      is_blue = (fetch('badge_type').to_s == 'blue')
-
-      # 🌟 上限100点を撤廃
-      # ただし、青バッジ以外は「0倍」にして強制的に人間（0点）にする
-      raw_total = details.values.sum
       total = is_blue ? raw_total : 0
-
       { total: total, details: details }
     end
 
@@ -58,7 +51,7 @@ module ZombieDetector
         tweets_per_day = count.to_f / days_active
 
         # ① 一般人シールド（1日平均8ポストまでは無害化・0点）
-        over_posts = [tweets_per_day - 8.0, 0.0].max
+        over_posts = [tweets_per_day - 3.0, 0.0].max
 
         # ② 基礎計算（オーバーした分 × 3.0点）し、上限40点で丸める
         base_score = [over_posts * 3.0, 40.0].min
