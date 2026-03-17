@@ -17,7 +17,7 @@ module ZombieDetector
         lang: check_lang_mismatch        # 🌟 言語ミスマッチ (最大40点)
       }
 
-      total = is_blue ? raw_total : 0
+      total = details.values.sum
       { total: total, details: details }
     end
 
@@ -50,7 +50,7 @@ module ZombieDetector
         # 1日あたりの平均ポスト数
         tweets_per_day = count.to_f / days_active
 
-        # ① 一般人シールド（1日平均8ポストまでは無害化・0点）
+        # ① 一般人シールド（1日平均3ポストまでは無害化・0点）
         over_posts = [tweets_per_day - 3.0, 0.0].max
 
         # ② 基礎計算（オーバーした分 × 3.0点）し、上限40点で丸める
