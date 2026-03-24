@@ -38,7 +38,11 @@ module ZombieDetector
         raw_total_score = jaccard_points + base_points
 
         # すべての点数が確定した一番最後に「青バッジ以外は0倍」する
-        is_blue = (reply['badge_type'].to_s == 'blue')
+        # 🌟 ここをより安全に強化(文字列キーでもシンボルキーでも取れるようにする)
+        badge = reply['badge_type'] || reply[:badge_type]
+        is_blue = (badge.to_s == 'blue')
+
+        # すべての点数が確定した一番最後に「青バッジ以外は0倍」する
         final_score = is_blue ? raw_total_score : 0
 
         # 🌟 RailsのコントローラーやReactが期待するキー名でデータを更新
