@@ -1,4 +1,4 @@
-// 🌟 カード1枚分を独立した部品にするワン！
+// 🌟 カード1枚分を独立した部品にする
 import React, { useState } from 'react';
 
 export const ReplyCard = ({ reply, badge }) => {
@@ -76,11 +76,11 @@ export const ReplyCard = ({ reply, badge }) => {
                 </div>
               )}
 
-              {/* 🌟 B. Railsから届いた内訳 (breakdown) を自動で並べるワン！ */}
+              {/* 🌟 B. Railsから届いた内訳 (breakdown) を自動で並べる */}
               {reply.breakdown && Object.entries(reply.breakdown).map(([key, val]) => {
                 if (val === 0) return null; // 0点の項目は出さない
 
-                // キー名を人間が見やすい名前に変換する辞書だワン
+                // キー名を人間が見やすい名前に変換する辞書
                 const labels = {
                   age: "🐣 Account Age Risk",
                   ff_ratio: "👥 Reciprocal FF Ratio",

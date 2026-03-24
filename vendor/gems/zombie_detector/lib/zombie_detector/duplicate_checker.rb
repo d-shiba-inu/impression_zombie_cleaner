@@ -4,7 +4,7 @@ require 'set'
 module ZombieDetector
   class DuplicateChecker
     def initialize(replies)
-      # 🌟 1. 投稿時間が古い順に並び替える（本家を先頭にするため）
+      # 🌟 投稿時間が古い順に並び替える（本家を先頭にするため）
       @replies = replies.sort_by { |r| Time.parse(r['created_at']) rescue Time.now }
     end
 
@@ -35,12 +35,19 @@ module ZombieDetector
         base_points = detector.score  # 最大100点
 
         # 合計 150点満点
-        total_score = jaccard_points + base_points
+        raw_total_score = jaccard_points + base_points
+
+        # すべての点数が確定した一番最後に「青バッジ以外は0倍」する
+        is_blue = (reply['badge_type'].to_s == 'blue')
+        final_score = is_blue ? raw_total_score : 0
 
         # 🌟 RailsのコントローラーやReactが期待するキー名でデータを更新
         reply['similarity_rate'] = max_sim.round(3) # 0.854 のような形式
-        reply['score'] = total_score                # 85 のような形式
-        reply['is_zombie'] = total_score >= 60 #  合計点が 60点以上ならゾンビ認定
+        reply['score'] = final_score                # 85 のような形式
+        reply['is_zombie'] = final_score >= 60 #  合計点が 60点以上ならゾンビ認定
+
+        # 🌟 React側で「Other Adjustments (マイナス点)」を正しく出すために内訳も渡す
+        reply['breakdown'] = detector.breakdown[:details]
 
         # 似ていない（オリジナル）投稿なら、以降の比較対象として記憶に追加
         # 類似度が低い(40%未満)かつ、空文字でない場合のみ保存
