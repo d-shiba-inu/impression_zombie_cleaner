@@ -37,8 +37,8 @@ class Api::V1::AnalysesController < ApplicationController
       render json: {
         status: 'success',
         message: "デモ用データの取得に成功したワン！🐾",
-        data: @results, # 🌟 カンマ忘れないワン！
-        is_demo: ENV['DEMO_MODE'] == 'true' # 🌟 React側にモードを伝えるワン
+        data: @results, 
+        is_demo: ENV['DEMO_MODE'] == 'true' # 🌟 React側にモードを伝える
       }
       return
     end
@@ -69,7 +69,7 @@ class Api::V1::AnalysesController < ApplicationController
     puts "DEBUG: API returned #{raw_replies&.size || 0} replies after filtering author."
     
     if raw_replies.nil? || raw_replies.empty?
-      # 🌟 何も取れなかった時は、ちゃんとメッセージを返すワン！
+      # 🌟 何も取れなかった時は、ちゃんとメッセージを返す
       render json: { 
         status: 'success', 
         data: [], 
@@ -112,7 +112,7 @@ class Api::V1::AnalysesController < ApplicationController
       }
     end
     
-    # 🌟 保存直前にデータを 1 件だけ手動でテスト保存してみるワン！
+    # 🌟 保存直前にデータを 1 件だけ手動でテスト保存してみる
     if save_data.any?
       test_record = Analysis.new(save_data.first)
       unless test_record.valid?
@@ -120,7 +120,7 @@ class Api::V1::AnalysesController < ApplicationController
       end
       
       begin
-        # 実際に DB に書いてみて、エラーをコンソールに吐き出すワン
+        # 実際に DB に書いてみて、エラーをコンソールに吐き出す
         Analysis.create!(save_data.first)
         puts "✅ 1件目のテスト保存に成功したワン！"
       rescue => e
@@ -136,7 +136,7 @@ class Api::V1::AnalysesController < ApplicationController
       status: 'success',
       message: "#{raw_replies.size}件を解析・保存したワン！🐾",
       data: @results, # 🌟 カンマ忘れないワン！
-      is_demo: ENV['DEMO_MODE'] == 'true' # 🌟 ここもセットだワン
+      is_demo: ENV['DEMO_MODE'] == 'true' # 🌟 ここもセット
     }
   end
 
@@ -157,7 +157,7 @@ class Api::V1::AnalysesController < ApplicationController
     # 1. 自作Gemで判定（既存ロジック）
     # 🌟 ここで Detector インスタンスを作る
     detector = ZombieDetector::Detector.new(user_data)
-    # 🌟 detector インスタンスからスコアを取るように修正したワン！
+    # 🌟 detector インスタンスからスコアを取るように修正した
     zombie_score = detector.score
     is_zombie = zombie_score >= 60 # 判定（60点以上をゾンビとする）
 
