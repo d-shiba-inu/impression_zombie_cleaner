@@ -101,4 +101,37 @@ Enhancement of Features
 - [x] ⭐️ 履歴の整理(MainのSTEP5)  
 - [x] ⭐️ UI/UXの整備   
 
+Mar. 2026  
+🐍 Phase 2: Python & SQL の導入
+計算ロジックをPythonへ移植し、SQLで直接データを操る力を身につける学習も兼ねて。
 
+1. 🛡️ バックアップと安全管理（Day 1-2）
+- [ ] **SQLによるデータ保護**
+  - [ ] `pg_dump` を使ったDBのバックアップ取得
+  - [ ] Postico / ターミナルでのデータ復旧テスト
+- [ ] **SQL基礎学習**
+  - [ ] `SELECT` で特定のゾンビを抽出する
+  - [ ] `AVG`, `COUNT`, `GROUP BY` でゾンビ統計を出す
+
+2. 🍳 Pythonの召喚（Day 3-5）
+- [ ] **Python環境の構築**
+  - [ ] MacへのPythonインストール & 仮想環境設定
+- [ ] **ロジックの移植（Ruby -> Python）**
+  - [ ] Python版 `zombie_detector` プロトタイプの作成
+  - [ ] JSONを受け取り、計算済みJSONを返すスクリプトの実装
+
+3. 🤝 Rails × Python 連携の実装（Day 6-8）
+- [ ] **サブプロセス呼び出しの実装**
+  - [ ] RailsからPythonスクリプトを叩く（`Open3` など）
+  - [ ] 計算結果をフロントエンドに返す
+- [ ] **SQL実戦（PythonからDB操作）**
+  - [ ] Pythonのライブラリを使ってPostgreSQLに接続する
+  - [ ] 生のSQLでデータを更新してみる
+
+4. 🚀 デモモードの完成とデプロイ（Day 9-10）
+- [ ] **Dockerのアップデート**
+  - [ ] `Dockerfile` にPythonインストール工程を追加
+  - [ ] `docker-compose.yml` の環境変数再確認
+- [ ] **最終デプロイ**
+  - [ ] 本番（EC2）での動作確認
+  - [ ] **DEMO_MODE** での完全動作達成！
