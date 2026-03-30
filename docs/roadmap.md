@@ -114,15 +114,15 @@ Mar. 2026
   - [x] `AVG`, `COUNT`, `GROUP BY` でゾンビ統計を出す
 
 2. 🍳 Pythonの召喚（Day 3-5）
-- [ ] **Python環境の構築**
-  - [ ] MacへのPythonインストール & 仮想環境設定
-- [ ] **ロジックの移植（Ruby -> Python）**
-  - [ ] Python版 `zombie_detector` プロトタイプの作成
-  - [ ] JSONを受け取り、計算済みJSONを返すスクリプトの実装
+- [x] **Python環境の構築**
+  - [x] MacへのPythonインストール & 仮想環境設定
+- [x] **ロジックの移植（Ruby -> Python）**
+  - [x] Python版 `zombie_detector` プロトタイプの作成
+  - [x] JSONを受け取り、計算済みJSONを返すスクリプトの実装
 
 3. 🤝 Rails × Python 連携の実装（Day 6-8）
-- [ ] **サブプロセス呼び出しの実装**
-  - [ ] RailsからPythonスクリプトを叩く（`Open3` など）
+- [x] **サブプロセス呼び出しの実装**
+  - [x] RailsからPythonスクリプトを叩く（`Open3` など）
   - [ ] 計算結果をフロントエンドに返す
 - [ ] **SQL実戦（PythonからDB操作）**
   - [ ] Pythonのライブラリを使ってPostgreSQLに接続する
