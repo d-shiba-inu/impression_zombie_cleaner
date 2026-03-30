@@ -116,9 +116,9 @@ Mar. 2026
 2. 🍳 Pythonの召喚（Day 3-5）
 - [x] **Python環境の構築**
   - [x] MacへのPythonインストール & 仮想環境設定
-- [ ] **ロジックの移植（Ruby -> Python）**
-  - [ ] Python版 `zombie_detector` プロトタイプの作成
-  - [ ] JSONを受け取り、計算済みJSONを返すスクリプトの実装
+- [x] **ロジックの移植（Ruby -> Python）**
+  - [x] Python版 `zombie_detector` プロトタイプの作成
+  - [x] JSONを受け取り、計算済みJSONを返すスクリプトの実装
 
 3. 🤝 Rails × Python 連携の実装（Day 6-8）
 - [ ] **サブプロセス呼び出しの実装**
